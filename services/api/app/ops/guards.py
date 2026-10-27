@@ -18,7 +18,7 @@ import psycopg
 from psycopg_pool import ConnectionPool
 from pydantic import BaseModel
 
-from app.agent.db import CONNECT_TIMEOUT_SECONDS, persona_url
+from app.agent.db import persona_url, pool_options
 from app.config import Settings
 
 logger = logging.getLogger(__name__)
@@ -41,10 +41,9 @@ class CostGuard:
             self._key = password.get_secret_value().encode()
             self._pool = ConnectionPool(
                 persona_url(settings.database_url, "app_service", password.get_secret_value()),
-                min_size=0,
                 max_size=2,
-                kwargs={"connect_timeout": CONNECT_TIMEOUT_SECONDS},
                 open=True,
+                **pool_options(),
             )
 
     @contextmanager

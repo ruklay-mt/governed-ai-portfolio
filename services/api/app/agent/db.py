@@ -7,6 +7,7 @@ here, Postgres decides which rows and columns come back.
 
 from collections.abc import Iterator
 from contextlib import contextmanager
+from typing import Any
 from urllib.parse import quote, urlparse, urlunparse
 
 import psycopg
@@ -22,6 +23,20 @@ POOL_MAX_SIZE = 3
 STATEMENT_TIMEOUT = "8s"
 # Neon can take a few seconds to wake from scale-to-zero.
 CONNECT_TIMEOUT_SECONDS = 10
+# Neon closes idle connections (and suspends the compute after a few idle minutes). A pool
+# that hands out such a connection hangs on a dead socket for minutes, so every connection
+# is checked before use and idle ones are dropped well before Neon drops them.
+POOL_MAX_IDLE_SECONDS = 60
+
+
+def pool_options() -> dict[str, Any]:
+    """Settings shared by every pool: persona logins and app_service."""
+    return {
+        "min_size": 0,
+        "max_idle": POOL_MAX_IDLE_SECONDS,
+        "check": ConnectionPool.check_connection,
+        "kwargs": {"connect_timeout": CONNECT_TIMEOUT_SECONDS},
+    }
 
 
 def persona_url(database_url: str, login: str, password: str) -> str:
@@ -52,10 +67,9 @@ class PersonaPools:
                 raise RuntimeError(f"no DB password set for persona {persona.id}")
             pool = ConnectionPool(
                 persona_url(self._database_url, persona.login, password.get_secret_value()),
-                min_size=0,
                 max_size=POOL_MAX_SIZE,
-                kwargs={"connect_timeout": CONNECT_TIMEOUT_SECONDS},
                 open=True,
+                **pool_options(),
             )
             self._pools[persona.id] = pool
         return pool
