@@ -1,0 +1,115 @@
+# Semantic layer (spec §7, ADR 0006): metrics and dimensions the agent can ask for by name.
+#
+# The compiler turns a request into SQL against the marts. `roles` lists the persona roles
+# allowed to use a metric; the compiler refuses others before any SQL runs, and the database
+# (column grants + RLS) stays the final guard because the SQL still runs as the caller's login.
+#
+# Expressions are trusted SQL written here, never text from the LLM. Requests only pick names
+# from this file, and filter values are always bound parameters.
+
+models:
+  sales:
+    table: marts.fct_sales
+    alias: s
+    date_column: s.order_date
+    description: Sales order lines in NZD; returns are lines with negative quantity.
+  invoices:
+    table: marts.fct_invoices
+    alias: i
+    date_column: i.invoice_date
+    description: Customer invoices with outstanding balance and days overdue.
+  tickets:
+    table: marts.fct_tickets
+    alias: t
+    date_column: t.opened_date
+    description: Service-desk tickets with SLA outcome.
+
+joins:
+  customer: inner join marts.dim_customer as c on c.customer_key = {alias}.customer_key
+  product: inner join marts.dim_product as p on p.product_key = {alias}.product_key
+  sales_rep: inner join marts.dim_sales_rep as r on r.sales_rep_key = {alias}.sales_rep_key
+
+dimensions:
+  region:
+    description: Sales region (NZ-NORTH, NZ-SOUTH, AU-EAST, AU-WEST).
+    expressions: {sales: s.region, invoices: i.region, tickets: t.region}
+  customer:
+    description: Customer account name.
+    join: customer
+    expressions: {sales: c.customer_name, invoices: c.customer_name, tickets: c.customer_name}
+  product_category:
+    description: Product category, e.g. Camping, Safety Equipment.
+    join: product
+    expressions: {sales: p.category, tickets: p.category}
+  product:
+    description: Product name.
+    join: product
+    expressions: {sales: p.product_name, tickets: p.product_name}
+  sales_rep:
+    description: Sales rep who took the order.
+    join: sales_rep
+    expressions: {sales: r.rep_name}
+  ticket_priority:
+    description: Ticket priority, P1 (highest) to P4.
+    expressions: {tickets: t.priority}
+  ticket_category:
+    description: Ticket category, e.g. Returns, Product fault, Billing.
+    expressions: {tickets: t.category}
+
+metrics:
+  revenue:
+    description: Net sales revenue in NZD after discounts, net of returns.
+    model: sales
+    expression: sum(s.net_amount_nzd)
+    unit: NZD
+    roles: [r_sales_rep, r_sales_manager, r_finance]
+  gross_margin:
+    description: Gross margin in NZD (net revenue minus cost).
+    model: sales
+    expression: sum(s.margin_nzd)
+    unit: NZD
+    roles: [r_finance]
+  gross_margin_pct:
+    description: Gross margin as a percentage of net revenue.
+    model: sales
+    expression: round(100 * sum(s.margin_nzd) / nullif(sum(s.net_amount_nzd), 0), 2)
+    unit: percent
+    roles: [r_finance]
+  order_count:
+    description: Number of distinct sales orders (returns excluded).
+    model: sales
+    expression: count(distinct s.order_number) filter (where s.line_type = 'sale')
+    unit: count
+    roles: [r_sales_rep, r_sales_manager, r_finance]
+  avg_discount_pct:
+    description: Average discount off list price on sales lines, in percent.
+    model: sales
+    expression: round(avg(s.discount_pct) filter (where s.line_type = 'sale'), 2)
+    unit: percent
+    roles: [r_sales_rep, r_sales_manager, r_finance]
+  return_rate:
+    description: Returned units as a percentage of units sold.
+    model: sales
+    expression: >-
+      round(100.0 * sum(-s.quantity) filter (where s.line_type = 'return')
+      / nullif(sum(s.quantity) filter (where s.line_type = 'sale'), 0), 2)
+    unit: percent
+    roles: [r_sales_rep, r_sales_manager, r_finance]
+  ar_overdue_amount:
+    description: Outstanding NZD on invoices past their due date. Usually asked with no time range.
+    model: invoices
+    expression: round(sum(i.outstanding_nzd) filter (where i.days_overdue > 0), 2)
+    unit: NZD
+    roles: [r_finance]
+  tickets_opened:
+    description: Number of service tickets opened.
+    model: tickets
+    expression: count(*)
+    unit: count
+    roles: [r_sales_rep, r_sales_manager, r_finance, r_support]
+  sla_breach_rate:
+    description: Percentage of tickets that breached their resolution SLA.
+    model: tickets
+    expression: round(100.0 * avg(t.is_sla_breached::int), 2)
+    unit: percent
+    roles: [r_sales_rep, r_sales_manager, r_finance, r_support]
