@@ -180,14 +180,18 @@ def classify(
 
 
 def run_agent(
-    deps: AgentDeps, persona_id: str, question: str, today: date | None = None
+    deps: AgentDeps,
+    persona_id: str,
+    question: str,
+    today: date | None = None,
+    trace_metadata: dict[str, str] | None = None,
 ) -> Iterator[Event]:
+    """`trace_metadata` is added to the Langfuse trace (evals tag their traces with it)."""
     get_persona(persona_id)  # fail fast on an unknown persona, before any model call
     today = today or date.today()
     totals = UsageTotals()
-    trace = deps.tracer.trace(
-        "chat", input={"question": question}, metadata={"persona": persona_id}
-    )
+    metadata: dict[str, Any] = {"persona": persona_id} | (trace_metadata or {})
+    trace = deps.tracer.trace("chat", input={"question": question}, metadata=metadata)
     if trace.trace_id:
         yield Event(type="trace_id", data={"trace_id": trace.trace_id})
 
@@ -207,7 +211,7 @@ def run_agent(
     finally:
         trace.end(
             output=answer.model_dump() if answer else None,
-            metadata={"persona": persona_id, "usage": totals.as_dict()},
+            metadata=metadata | {"usage": totals.as_dict()},
         )
         deps.tracer.flush()
 
@@ -315,6 +319,7 @@ def _answer(
                     "tool": result.tool,
                     "status": result.status,
                     "row_count": result.row_count,
+                    "columns": result.columns,
                     "denied_by": result.denied_by,
                     "message": result.message,
                     "duration_ms": round((time.monotonic() - started) * 1000),

@@ -13,7 +13,7 @@ import json
 import sys
 from datetime import UTC, datetime
 
-from app.agent.loop import run_agent
+from app.agent.record import collect_run
 from app.config import get_settings
 from app.runtime import build_runtime
 from app.samples.catalogue import ANSWERS_DIR, CachedAnswer, check_expectations, load_samples
@@ -37,29 +37,18 @@ def main() -> int:
     failures = 0
 
     for sample in samples:
-        answer: dict[str, object] = {}
-        usage: dict[str, object] = {}
-        errors: list[str] = []
-        tools: list[str] = []
-        for event in run_agent(runtime.deps, sample.persona, sample.question):
-            if event.type == "answer":
-                answer = event.data
-            elif event.type == "usage":
-                usage = event.data
-            elif event.type == "tool_result":
-                tools.append(f"{event.data['tool']}:{event.data['status']}")
-            elif event.type == "error":
-                errors.append(str(event.data["message"]))
-        cost = float(str(usage.get("cost_usd", 0.0)))
+        run = collect_run(runtime.deps, sample.persona, sample.question)
+        answer, usage = run.answer, run.usage
+        cost = run.cost_usd
         total_cost += cost
         runtime.guard.record_spend(cost)
 
-        problems = errors + check_expectations(sample, answer)
+        problems = run.errors + check_expectations(sample, answer)
         status = "PASS" if not problems else "FAIL"
         failures += bool(problems)
         print(
             f"{status} {sample.id:<26} {usage.get('latency_ms', 0):>6} ms  ${cost:.4f}"
-            f"  tools={','.join(tools) or '-'}"
+            f"  tools={','.join(run.tools) or '-'}"
         )
         print(f"     {str(answer.get('text', ''))[:220]}")
         for problem in problems:
