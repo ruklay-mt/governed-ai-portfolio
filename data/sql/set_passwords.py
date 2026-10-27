@@ -1,7 +1,9 @@
 """Set the persona logins' passwords from environment variables (ADR 0008).
 
-The password is hashed (SCRAM) on this machine and only the hash is sent to the server, so
-plain text never reaches server logs. Values are never printed.
+On plain Postgres (CI) the password is hashed (SCRAM) on this machine and only the hash is
+sent, so plain text never reaches server logs. Neon is different: it intercepts ALTER ROLE
+... PASSWORD to sync the role to its control plane and only accepts plain text, so there it
+is sent over the TLS connection and Neon stores the SCRAM hash. Values are never printed.
 
 Usage: python data/sql/set_passwords.py --target dev|prod
 """
@@ -9,6 +11,7 @@ Usage: python data/sql/set_passwords.py --target dev|prod
 import argparse
 import os
 import sys
+from urllib.parse import urlparse
 
 import psycopg
 from psycopg import sql
@@ -22,15 +25,22 @@ PERSONA_LOGINS = {
 }
 
 
+def is_neon(database_url: str) -> bool:
+    return (urlparse(database_url).hostname or "").endswith(".neon.tech")
+
+
 def set_passwords(database_url: str, passwords: dict[str, str]) -> None:
+    hash_locally = not is_neon(database_url)
     with psycopg.connect(database_url) as conn, conn.transaction():
         for login, password in passwords.items():
-            hashed = conn.pgconn.encrypt_password(
-                password.encode(), login.encode(), b"scram-sha-256"
-            )
+            value = password
+            if hash_locally:
+                value = conn.pgconn.encrypt_password(
+                    password.encode(), login.encode(), b"scram-sha-256"
+                ).decode()
             conn.execute(
                 sql.SQL("alter role {} password {}").format(
-                    sql.Identifier(login), sql.Literal(hashed.decode())
+                    sql.Identifier(login), sql.Literal(value)
                 )
             )
 

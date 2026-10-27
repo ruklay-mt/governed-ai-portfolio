@@ -38,7 +38,7 @@ OVER_CAP_DISCOUNTS = """
 
 def test_discounting_story_visible_to_finance(connect_as: Connect) -> None:
     jake, others, others_max = _row(connect_as(FINANCE), OVER_CAP_DISCOUNTS)
-    assert float(jake) > 15 > float(others_max)  # type: ignore[arg-type]
+    assert float(jake) > 15 >= float(others_max)  # cap is "up to 15%"  # type: ignore[arg-type]
     assert float(jake) > 2 * float(others)  # type: ignore[arg-type]
 
 
