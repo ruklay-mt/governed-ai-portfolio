@@ -16,10 +16,10 @@ def test_model_names_have_no_hard_coded_default(monkeypatch: pytest.MonkeyPatch)
 def test_reads_values_from_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MODEL_MAIN", "model-from-env")
     monkeypatch.setenv("DAILY_BUDGET_USD", "0.5")
-    monkeypatch.setenv("CORS_ORIGINS", '["https://example.test"]')
+    monkeypatch.setenv("CORS_ORIGINS", "https://a.example.test, https://b.example.test")
 
     settings = Settings(_env_file=None)
 
     assert settings.model_main == "model-from-env"
     assert settings.daily_budget_usd == 0.5
-    assert settings.cors_origins == ["https://example.test"]
+    assert settings.cors_origins == ["https://a.example.test", "https://b.example.test"]

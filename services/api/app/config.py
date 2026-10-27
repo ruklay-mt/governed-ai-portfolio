@@ -1,9 +1,10 @@
 """Runtime settings, read from environment variables (and `.env` in local development)."""
 
 from functools import lru_cache
+from typing import Annotated
 
-from pydantic import SecretStr
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import SecretStr, field_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -27,8 +28,15 @@ class Settings(BaseSettings):
     # Cost guards (spec §16)
     daily_budget_usd: float = 1.00
 
-    # Web
-    cors_origins: list[str] = ["http://localhost:3000"]
+    # Web: comma-separated in the environment, e.g. "https://a.example,https://b.example".
+    cors_origins: Annotated[list[str], NoDecode] = ["http://localhost:3000"]
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def split_origins(cls, value: object) -> object:
+        if isinstance(value, str):
+            return [origin.strip() for origin in value.split(",") if origin.strip()]
+        return value
 
 
 @lru_cache
