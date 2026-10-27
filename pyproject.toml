@@ -23,11 +23,11 @@ extend-exclude = ["apps", "notes"]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["app", "generator", "migrate"]
+known-first-party = ["app", "generator", "migrate", "set_passwords", "conftest"]
 
 [tool.mypy]
 python_version = "3.12"
-files = ["services/api/app", "data/sql/migrate.py", "data/generator/generator", "data/dbt/run.py"]
+files = ["services/api/app", "data/sql/migrate.py", "data/sql/apply_security.py", "data/sql/set_passwords.py", "data/sql/record_run.py", "data/generator/generator", "data/dbt/run.py"]
 strict = true
 plugins = ["pydantic.mypy"]
 
