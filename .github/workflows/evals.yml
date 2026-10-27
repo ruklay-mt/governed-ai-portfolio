@@ -46,6 +46,20 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           version: "0.12.5"
+      # Fail early, and by name, when a required secret or variable is missing. The gate must
+      # never pass by skipping: no credentials means a red check, not a green one.
+      - name: Check required secrets and variables
+        run: |
+          missing=""
+          for name in DATABASE_URL AGENT_DB_PASSWORD_SALES_REP_NZ_SOUTH AGENT_DB_PASSWORD_SALES_MANAGER \
+            AGENT_DB_PASSWORD_FINANCE AGENT_DB_PASSWORD_SUPPORT APP_SERVICE_DB_PASSWORD \
+            ANTHROPIC_API_KEY MODEL_MAIN MODEL_SMALL VOYAGE_API_KEY EMBEDDING_MODEL; do
+            if [ -z "${!name}" ]; then missing="$missing $name"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing secrets/variables:$missing (ANTHROPIC_API_KEY comes from secret ANTHROPIC_API_KEY_CI; DATABASE_URL from DATABASE_URL_DEV)"
+            exit 1
+          fi
       - run: make setup-py
       # Applies any migration in this PR to Neon dev (the same branch the daily pipeline uses).
       - run: make db-migrate
