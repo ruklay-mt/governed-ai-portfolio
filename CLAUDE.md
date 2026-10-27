@@ -21,10 +21,11 @@ services/api/             FastAPI backend (agent, docflow, read APIs)
   app/retrieval/          hybrid search over documents
   app/docflow/            Project 2: extraction, validation, matching
   app/mcp/                MCP server exposing the agent tools
+  app/evals/              eval runner, checkers, LLM judge, report
 data/generator/           Python synthetic data generator
 data/dbt/                 dbt project (staging -> intermediate -> marts)
 data/sql/                 migrations: schemas, roles, RLS policies, grants
-evals/                    golden sets (YAML), runner, reports
+evals/                    golden-set cases (YAML), gate config, reports
 infra/                    API Dockerfile, GCP bootstrap script
 .github/workflows/        ci, evals, pipeline (daily data run), deploy
 docs/                     spec.md, phases.md, decisions/ (ADRs)
@@ -63,7 +64,8 @@ make web-dev        # run Next.js locally
 make agent-smoke    # run sample questions live, check expectations (spends tokens; ARGS="--only id")
 make samples-build  # same, and write passing answers to services/api/app/samples/answers/
 make test           # unit tests (pytest + vitest)
-make eval           # run golden-set evals, write report to evals/reports/
+make eval           # run golden-set evals on dev, write report to evals/reports/, fail under
+                    # the gate (spends tokens, ~US$0.45; ARGS="--only id" / "--repeat 3")
 make lint           # ruff, mypy, eslint, sqlfluff
 ```
 
