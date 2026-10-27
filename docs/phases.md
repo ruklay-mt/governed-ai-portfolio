@@ -15,12 +15,12 @@ Before Phase 0, the author creates accounts and keys (Claude cannot enter creden
 
 ### Phase 0 — Repo, CI and deploy skeleton (day 1)
 
-- [ ] Monorepo skeleton matching `CLAUDE.md` layout; `Makefile` with all listed targets (stubs allowed)
-- [ ] `uv` workspace for Python, `pnpm` workspace for web; `.env.example` with every variable used
-- [ ] Plain-SQL migration runner; `make db-migrate` creates schemas `raw`, `staging`, `intermediate`, `marts`, `retrieval`, `ops`, `evals`, `docflow` and the `vector` extension, on Neon `dev` and `main`
-- [ ] FastAPI skeleton with `/api/health`; Next.js skeleton
-- [ ] GitHub Actions `ci.yml`: lint + unit tests + migration smoke test (pgvector service container) on every PR
-- [ ] GitHub Actions `deploy.yml`: build image, push to Artifact Registry, deploy to Cloud Run via Workload Identity Federation
+- [x] Monorepo skeleton matching `CLAUDE.md` layout; `Makefile` with all listed targets (stubs allowed)
+- [x] `uv` workspace for Python, `pnpm` workspace for web; `.env.example` with every variable used
+- [x] Plain-SQL migration runner; `make db-migrate` creates schemas `raw`, `staging`, `intermediate`, `marts`, `retrieval`, `ops`, `evals`, `docflow` and the `vector` extension, on Neon `dev` and `main`
+- [x] FastAPI skeleton with `/api/health`; Next.js skeleton
+- [x] GitHub Actions `ci.yml`: lint + unit tests + migration smoke test (pgvector service container) on every PR
+- [x] GitHub Actions `deploy.yml`: build image, push to Artifact Registry, deploy to Cloud Run via Workload Identity Federation
 
 **Done when:** a fresh clone runs `make setup && make db-migrate && make test` green; CI passes on an empty PR; the Cloud Run URL returns 200 from `/api/health`.
 
