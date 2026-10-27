@@ -21,6 +21,12 @@ class Settings(BaseSettings):
             return value.strip() or None
         return value
 
+    # Persona DB logins (ADR 0008): the API connects as the caller's persona, never as the owner.
+    agent_db_password_sales_rep_nz_south: SecretStr | None = None
+    agent_db_password_sales_manager: SecretStr | None = None
+    agent_db_password_finance: SecretStr | None = None
+    agent_db_password_support: SecretStr | None = None
+
     # Models: names always come from the environment, never from code (CLAUDE.md rule 5).
     anthropic_api_key: SecretStr | None = None
     model_main: str | None = None
