@@ -7,7 +7,7 @@ TARGET ?= dev
 SCALE ?= full
 
 .PHONY: setup setup-py setup-web db-migrate db-migrate-prod data-generate data-append dbt-build docs-embed db-users \
-	api-dev web-dev test test-py test-web eval lint lint-py lint-web
+	api-dev web-dev agent-smoke samples-build test test-py test-web eval lint lint-py lint-web
 
 setup: setup-py setup-web
 
@@ -42,6 +42,12 @@ db-users:
 
 api-dev:
 	$(UV_RUN) uvicorn app.main:app --reload --port 8000
+
+agent-smoke:
+	$(UV_RUN) python -m app.samples.runner $(ARGS)
+
+samples-build:
+	$(UV_RUN) python -m app.samples.runner --write $(ARGS)
 
 web-dev:
 	pnpm --filter web dev

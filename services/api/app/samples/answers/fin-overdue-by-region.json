@@ -1,0 +1,63 @@
+{
+  "sample_id": "fin-overdue-by-region",
+  "built_at": "2026-10-27T07:28:26+00:00",
+  "answer": {
+    "text": "Total overdue AR is about NZD 10.17 million. AU-EAST is highest at NZD 3.58m, then NZ-NORTH at 3.08m, AU-WEST at 1.79m and NZ-SOUTH at 1.71m.",
+    "assumptions": [
+      "No time range applied: all outstanding invoices past their due date",
+      "Amounts in NZD (AUD converted at the monthly rate)"
+    ],
+    "table": {
+      "result_id": "r1",
+      "columns": [
+        "region",
+        "ar_overdue_amount"
+      ],
+      "rows": [
+        [
+          "AU-EAST",
+          3583957.09
+        ],
+        [
+          "NZ-NORTH",
+          3081588.05
+        ],
+        [
+          "AU-WEST",
+          1791761.97
+        ],
+        [
+          "NZ-SOUTH",
+          1714266.13
+        ]
+      ]
+    },
+    "chart": {
+      "type": "bar",
+      "x": "region",
+      "y": "ar_overdue_amount"
+    },
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "get_metric",
+        "sql": "select i.region as region, round(sum(i.outstanding_nzd) filter (where i.days_overdue > 0), 2) as ar_overdue_amount\nfrom marts.fct_invoices as i\ngroup by 1\norder by 2 desc nulls last\nlimit %(row_limit)s",
+        "params": {
+          "row_limit": 100
+        }
+      }
+    ],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 670,
+    "output_tokens": 457,
+    "cache_read_tokens": 3279,
+    "cache_write_tokens": 3571,
+    "cost_usd": 0.013718,
+    "latency_ms": 5676
+  }
+}

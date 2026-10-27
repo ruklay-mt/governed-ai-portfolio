@@ -1,0 +1,87 @@
+{
+  "sample_id": "fin-safety-margin",
+  "built_at": "2026-10-27T07:28:20+00:00",
+  "answer": {
+    "text": "Gross margin % on Safety Equipment in AU-EAST was stable at about 46% from Q1 2025 to Q1 2026 (45.9%, 46.3%, 46.0%, 46.0%, 46.3%). It then fell sharply to 38.1% in Q2 2026 and stayed there: 38.1% in Q3 and 38.0% in Q4 to date. That is a drop of about 8 points. I haven't looked into the cause.",
+    "assumptions": [
+      "Since 2025 = 2025-01-01 to 2026-10-27, by calendar quarter",
+      "Q4 2026 (from 2026-10-01) is a partial quarter"
+    ],
+    "table": {
+      "result_id": "r1",
+      "columns": [
+        "period",
+        "gross_margin_pct"
+      ],
+      "rows": [
+        [
+          "2025-01-01",
+          45.92
+        ],
+        [
+          "2025-04-01",
+          46.33
+        ],
+        [
+          "2025-07-01",
+          46.02
+        ],
+        [
+          "2025-10-01",
+          45.98
+        ],
+        [
+          "2026-01-01",
+          46.27
+        ],
+        [
+          "2026-04-01",
+          38.07
+        ],
+        [
+          "2026-07-01",
+          38.12
+        ],
+        [
+          "2026-10-01",
+          38.02
+        ]
+      ]
+    },
+    "chart": {
+      "type": "line",
+      "x": "period",
+      "y": "gross_margin_pct"
+    },
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "get_metric",
+        "sql": "select date_trunc('quarter', s.order_date)::date as period, round(100 * sum(s.margin_nzd) / nullif(sum(s.net_amount_nzd), 0), 2) as gross_margin_pct\nfrom marts.fct_sales as s\ninner join marts.dim_product as p on p.product_key = s.product_key\nwhere s.order_date between %(start_date)s and %(end_date)s and p.category = any(%(filter_0)s) and s.region = any(%(filter_1)s)\ngroup by 1\norder by 1\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2025-01-01",
+          "end_date": "2026-10-27",
+          "filter_0": [
+            "Safety Equipment"
+          ],
+          "filter_1": [
+            "AU-EAST"
+          ],
+          "row_limit": 100
+        }
+      }
+    ],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 686,
+    "output_tokens": 613,
+    "cache_read_tokens": 3295,
+    "cache_write_tokens": 3703,
+    "cost_usd": 0.015613,
+    "latency_ms": 8272
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "sample_id": "mgr-p1-breach-january",
+  "built_at": "2026-10-27T07:28:05+00:00",
+  "answer": {
+    "text": "In January 2026, AU-WEST had by far the highest P1 SLA breach rate at 80.0%. NZ-SOUTH was 14.29%, AU-EAST 10.53% and NZ-NORTH 5.88%.",
+    "assumptions": [
+      "January 2026 = 2026-01-01 to 2026-01-31",
+      "P1 = ticket_priority 'P1'",
+      "sla_breach_rate is the percentage of tickets that breached their resolution SLA"
+    ],
+    "table": {
+      "result_id": "r1",
+      "columns": [
+        "region",
+        "sla_breach_rate"
+      ],
+      "rows": [
+        [
+          "AU-WEST",
+          80.0
+        ],
+        [
+          "NZ-SOUTH",
+          14.29
+        ],
+        [
+          "AU-EAST",
+          10.53
+        ],
+        [
+          "NZ-NORTH",
+          5.88
+        ]
+      ]
+    },
+    "chart": {
+      "type": "bar",
+      "x": "region",
+      "y": "sla_breach_rate"
+    },
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "get_metric",
+        "sql": "select t.region as region, round(100.0 * avg(t.is_sla_breached::int), 2) as sla_breach_rate\nfrom marts.fct_tickets as t\nwhere t.opened_date between %(start_date)s and %(end_date)s and t.priority = any(%(filter_0)s)\ngroup by 1\norder by 2 desc nulls last\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-01-01",
+          "end_date": "2026-01-31",
+          "filter_0": [
+            "P1"
+          ],
+          "row_limit": 100
+        }
+      }
+    ],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 678,
+    "output_tokens": 557,
+    "cache_read_tokens": 3127,
+    "cache_write_tokens": 3477,
+    "cost_usd": 0.014339,
+    "latency_ms": 5933
+  }
+}

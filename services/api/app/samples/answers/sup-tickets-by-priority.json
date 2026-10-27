@@ -1,0 +1,66 @@
+{
+  "sample_id": "sup-tickets-by-priority",
+  "built_at": "2026-10-27T07:29:00+00:00",
+  "answer": {
+    "text": "Last month (September 2026) there were 936 tickets opened: P3 433, P4 273, P2 190 and P1 40.",
+    "assumptions": [
+      "last_month = 2026-09-01 to 2026-09-30",
+      "All regions included",
+      "Total of 936 is the sum of the four priority rows"
+    ],
+    "table": {
+      "result_id": "r1",
+      "columns": [
+        "ticket_priority",
+        "tickets_opened"
+      ],
+      "rows": [
+        [
+          "P3",
+          433
+        ],
+        [
+          "P4",
+          273
+        ],
+        [
+          "P2",
+          190
+        ],
+        [
+          "P1",
+          40
+        ]
+      ]
+    },
+    "chart": {
+      "type": "bar",
+      "x": "ticket_priority",
+      "y": "tickets_opened"
+    },
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "get_metric",
+        "sql": "select t.priority as ticket_priority, count(*) as tickets_opened\nfrom marts.fct_tickets as t\nwhere t.opened_date between %(start_date)s and %(end_date)s\ngroup by 1\norder by 2 desc nulls last\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-09-01",
+          "end_date": "2026-09-30",
+          "row_limit": 100
+        }
+      }
+    ],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 668,
+    "output_tokens": 449,
+    "cache_read_tokens": 2937,
+    "cache_write_tokens": 3197,
+    "cost_usd": 0.012615,
+    "latency_ms": 6709
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "sample_id": "rep-tickets-last-month",
+  "built_at": "2026-10-27T07:27:00+00:00",
+  "answer": {
+    "text": "Customers in NZ-SOUTH opened 181 tickets last month (September 2026): P3 91, P4 50, P2 29 and P1 11.",
+    "assumptions": [
+      "last month = 2026-09-01 to 2026-09-30",
+      "Data limited to NZ-SOUTH, the region your role can see",
+      "Total of 181 is the sum of the four priority rows"
+    ],
+    "table": {
+      "result_id": "r1",
+      "columns": [
+        "ticket_priority",
+        "tickets_opened"
+      ],
+      "rows": [
+        [
+          "P3",
+          91
+        ],
+        [
+          "P4",
+          50
+        ],
+        [
+          "P2",
+          29
+        ],
+        [
+          "P1",
+          11
+        ]
+      ]
+    },
+    "chart": {
+      "type": "bar",
+      "x": "ticket_priority",
+      "y": "tickets_opened"
+    },
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "get_metric",
+        "sql": "select t.priority as ticket_priority, count(*) as tickets_opened\nfrom marts.fct_tickets as t\nwhere t.opened_date between %(start_date)s and %(end_date)s\ngroup by 1\norder by 2 desc nulls last\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-09-01",
+          "end_date": "2026-09-30",
+          "row_limit": 100
+        }
+      }
+    ],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 671,
+    "output_tokens": 469,
+    "cache_read_tokens": 3157,
+    "cache_write_tokens": 3417,
+    "cost_usd": 0.013438,
+    "latency_ms": 5529
+  }
+}

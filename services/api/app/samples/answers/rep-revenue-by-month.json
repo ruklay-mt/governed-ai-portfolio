@@ -1,0 +1,91 @@
+{
+  "sample_id": "rep-revenue-by-month",
+  "built_at": "2026-10-27T07:26:29+00:00",
+  "answer": {
+    "text": "NZ-SOUTH revenue ran between about $1.76m and $2.21m a month this year. July was the highest at $2,213,947 and May the lowest at $1,763,210. October is only part-way through, at $1,813,272 so far.",
+    "assumptions": [
+      "This year = year to date, 2026-01-01 to 2026-10-27.",
+      "Region is NZ-SOUTH, the only region your role can see.",
+      "Revenue is net of discounts and returns, in NZD.",
+      "October is a partial month."
+    ],
+    "table": {
+      "result_id": "r1",
+      "columns": [
+        "period",
+        "revenue"
+      ],
+      "rows": [
+        [
+          "2026-01-01",
+          2112477.6
+        ],
+        [
+          "2026-02-01",
+          1780345.84
+        ],
+        [
+          "2026-03-01",
+          2023685.4
+        ],
+        [
+          "2026-04-01",
+          1956433.21
+        ],
+        [
+          "2026-05-01",
+          1763209.77
+        ],
+        [
+          "2026-06-01",
+          2177464.38
+        ],
+        [
+          "2026-07-01",
+          2213947.37
+        ],
+        [
+          "2026-08-01",
+          2039120.47
+        ],
+        [
+          "2026-09-01",
+          1989593.71
+        ],
+        [
+          "2026-10-01",
+          1813272.13
+        ]
+      ]
+    },
+    "chart": {
+      "type": "line",
+      "x": "period",
+      "y": "revenue"
+    },
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "get_metric",
+        "sql": "select date_trunc('month', s.order_date)::date as period, sum(s.net_amount_nzd) as revenue\nfrom marts.fct_sales as s\nwhere s.order_date between %(start_date)s and %(end_date)s\ngroup by 1\norder by 1\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-01-01",
+          "end_date": "2026-10-27",
+          "row_limit": 100
+        }
+      }
+    ],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 666,
+    "output_tokens": 488,
+    "cache_read_tokens": 3152,
+    "cache_write_tokens": 3550,
+    "cost_usd": 0.013969,
+    "latency_ms": 6758
+  }
+}

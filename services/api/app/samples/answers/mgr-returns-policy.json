@@ -1,0 +1,30 @@
+{
+  "sample_id": "mgr-returns-policy",
+  "built_at": "2026-10-27T07:28:12+00:00",
+  "answer": {
+    "text": "Customers have 30 days from delivery to return unused products in their original packaging for change of mind. They get a credit note. A 10% restocking fee applies to returns over NZD 500. Custom-cut rope, opened safety consumables and clearance items can't be returned for change of mind.",
+    "assumptions": [],
+    "table": null,
+    "chart": null,
+    "citations": [
+      {
+        "chunk_id": "returns-policy#1",
+        "doc_title": "Returns Policy",
+        "section": "Change-of-mind returns",
+        "source": "data/documents/returns-policy.md"
+      }
+    ],
+    "sql": [],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 670,
+    "output_tokens": 407,
+    "cache_read_tokens": 3119,
+    "cache_write_tokens": 3903,
+    "cost_usd": 0.014026,
+    "latency_ms": 6980
+  }
+}
