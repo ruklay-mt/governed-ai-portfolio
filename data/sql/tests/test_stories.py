@@ -62,22 +62,25 @@ RETURNS_SPIKE = """
 """
 
 
-def test_returns_spike_visible_to_manager(connect_as: Connect) -> None:
-    (returns,) = _row(connect_as(MANAGER), RETURNS_SPIKE)
-    assert int(returns) >= 1  # type: ignore[call-overload]
+ZIP_TICKETS = """
+    select count(*)
+    from marts.fct_tickets
+    where product_key = 'CMP-0001' and subject like '%zip failure'
+"""
+# The size of the returns spike is checked at full scale in data/generator/tests. At CI's small
+# scale the returns themselves can be few or none, but the fault tickets are always there.
 
 
-def test_returns_spike_tickets_visible_to_support(connect_as: Connect) -> None:
-    (tickets,) = _row(
-        connect_as(SUPPORT),
-        "select count(*) from marts.fct_tickets "
-        "where product_key = 'CMP-0001' and subject like '%zip failure'",
-    )
-    assert int(tickets) >= 1  # type: ignore[call-overload]
+@pytest.mark.parametrize("login", [MANAGER, SUPPORT])
+def test_returns_spike_tickets_visible(connect_as: Connect, login: str) -> None:
+    (tickets,) = _row(connect_as(login), ZIP_TICKETS)
+    assert int(tickets) >= 5  # type: ignore[call-overload]
 
 
 def test_returns_spike_not_visible_to_nz_south_rep(connect_as: Connect) -> None:
-    assert _row(connect_as(SALES_REP), RETURNS_SPIKE) == (0,)
+    conn = connect_as(SALES_REP)
+    assert _row(conn, RETURNS_SPIKE) == (0,)
+    assert _row(conn, ZIP_TICKETS) == (0,)
 
 
 LATE_PAYER = """

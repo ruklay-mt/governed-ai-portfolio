@@ -178,7 +178,7 @@ def test_region_cannot_be_spoofed_with_settings(connect_as: Connect, spoof: str)
         _value(
             conn,
             "select count(*) from ("
-            "select set_config('app.region', 'AU-EAST', true), * "
+            "select set_config('app.region', 'AU-EAST', true), customer_key "
             "from marts.dim_customer where region = 'AU-EAST') as t",
         )
         == 0
@@ -187,7 +187,7 @@ def test_region_cannot_be_spoofed_with_settings(connect_as: Connect, spoof: str)
 
 def test_sales_rep_cannot_rewrite_its_scope(connect_as: Connect) -> None:
     conn = connect_as(SALES_REP)
-    conn.execute("set transaction read write")
+    conn.execute("set default_transaction_read_only = off")
     with pytest.raises(psycopg.errors.InsufficientPrivilege):
         conn.execute("update ops.persona_scope set region = null")
 
