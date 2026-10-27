@@ -6,7 +6,7 @@ UV_RUN := uv run --all-packages $(ENV_FILE)
 TARGET ?= dev
 SCALE ?= full
 
-.PHONY: setup setup-py setup-web db-migrate db-migrate-prod data-generate data-append dbt-build \
+.PHONY: setup setup-py setup-web db-migrate db-migrate-prod data-generate data-append dbt-build db-users \
 	api-dev web-dev test test-py test-web eval lint lint-py lint-web
 
 setup: setup-py setup-web
@@ -18,7 +18,7 @@ setup-web:
 	pnpm install --frozen-lockfile
 
 db-migrate:
-	$(UV_RUN) python data/sql/migrate.py --target dev
+	$(UV_RUN) python data/sql/migrate.py --target $(TARGET)
 
 db-migrate-prod:
 	$(UV_RUN) python data/sql/migrate.py --target prod
@@ -31,7 +31,11 @@ data-append:
 
 dbt-build:
 	$(UV_RUN) python data/dbt/run.py --target $(TARGET) build
+	$(UV_RUN) python data/sql/apply_security.py --target $(TARGET)
 	$(UV_RUN) python data/dbt/run.py --target $(TARGET) source freshness
+
+db-users:
+	$(UV_RUN) python data/sql/set_passwords.py --target $(TARGET)
 
 api-dev:
 	$(UV_RUN) uvicorn app.main:app --reload --port 8000

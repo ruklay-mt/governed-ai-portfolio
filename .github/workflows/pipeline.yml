@@ -1,0 +1,55 @@
+name: pipeline
+
+# Daily data run (ADR 0003): append today's synthetic data, rebuild marts, re-apply the access
+# policy, and record the run. Manual runs can pick the target.
+on:
+  schedule:
+    - cron: "30 14 * * *" # 03:30 NZDT
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Neon branch to run against
+        type: choice
+        options: [dev, prod]
+        default: dev
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pipeline-${{ inputs.target || 'dev' }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      TARGET: ${{ inputs.target || 'dev' }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL_DEV }}
+      DATABASE_URL_PROD: ${{ secrets.DATABASE_URL_PROD }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.5"
+      - run: make setup-py
+      - run: make db-migrate TARGET=$TARGET
+      - run: make data-append TARGET=$TARGET
+      - run: make dbt-build TARGET=$TARGET
+
+      - name: Record success
+        run: uv run --all-packages python data/sql/record_run.py --target "$TARGET" --status success --run-url "$RUN_URL"
+      - name: Record failure
+        if: failure()
+        run: uv run --all-packages python data/sql/record_run.py --target "$TARGET" --status failure --run-url "$RUN_URL"
+
+      - name: Keep dbt artefacts (lineage for a later pipeline page)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-artifacts-${{ env.TARGET }}
+          path: |
+            data/dbt/target/manifest.json
+            data/dbt/target/run_results.json
+          if-no-files-found: ignore
