@@ -35,9 +35,13 @@ def marts_built(owner_url: str) -> None:
         pytest.skip("marts not built (run make data-generate dbt-build)")
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def connect_as(owner_url: str, marts_built: None) -> Iterator[Callable[[str], psycopg.Connection]]:
-    """Open an autocommit connection as a persona login."""
+    """Open an autocommit connection as a persona login, closed when the test ends.
+
+    Per-test connections keep session state (e.g. a set_config spoof) from leaking between
+    tests, and stay under each login's connection limit.
+    """
     missing = [var for var in PERSONA_LOGINS.values() if not os.environ.get(var)]
     if missing:
         pytest.skip(f"needs persona passwords: {', '.join(missing)}")
