@@ -34,7 +34,7 @@ Status: draft v0.2 (2026-10-27). v0.2 refocuses on AI engineering, defines a one
 | D8 | Frontend hosting | Vercel Hobby | Accepted | — |
 | D9 | Names | Company "Harbourline Supply Co."; product "Governed AI Data Assistant" | Accepted | 0006 |
 | D10 | Repo visibility | Public, MIT licence | Accepted | 0006 |
-| D11 | Embeddings | Voyage AI, model via env | Accepted | 0005 |
+| D11 | Embeddings | Voyage AI `voyage-4-lite`, 1024 dims, model via env | Accepted | 0005, 0010 |
 | D12 | DB access model | One read-only login per persona; RLS scope from `session_user` | Accepted | 0008 |
 
 Record changes as ADRs in `docs/decisions/`.
@@ -114,7 +114,7 @@ Keep this layer small (ADR 0001): build a model only when a tool, metric or eval
 | CRM | `crm_accounts`, `crm_users` (sales reps with region) | **[MVP]** |
 | CRM | `crm_contacts`, `crm_opportunities`, `crm_activities` | later |
 | Service desk | `sd_tickets`, `sd_sla_policies` | **[MVP]** |
-| Documents | `doc_files` (metadata + markdown text) | **[MVP]** |
+| Documents | not a raw table: markdown with front matter in `data/documents/` (ADR 0010) | **[MVP]** |
 
 Returns are order lines with negative quantity and a return reason. Deliberate source messiness, kept small: differing customer keys between ERP and CRM, soft deletes, currency (NZD/AUD).
 
@@ -132,7 +132,7 @@ Every mart: unique + not-null tests on keys, relationship tests to dims, source 
 
 ### 5.3 Pipeline
 
-A scheduled GitHub Actions workflow (ADR 0003), daily and on manual dispatch: generator append → `dbt build` → embed new or changed documents → write a row to `ops.pipeline_runs`. dbt `manifest.json` is kept as an artefact for a future lineage view.
+A scheduled GitHub Actions workflow (ADR 0003), daily and on manual dispatch: generator append → `dbt build` → embed new or changed documents (`make docs-embed`) → write a row to `ops.pipeline_runs`. dbt `manifest.json` is kept as an artefact for a future lineage view.
 
 ---
 
@@ -203,7 +203,7 @@ Models via env: `MODEL_MAIN` (default `claude-sonnet-5-5`), `MODEL_SMALL` (defau
 - Out-of-scope classifier + jailbreak test cases in the eval set.
 
 ### 8.4 Embeddings
-Voyage AI (ADR 0005). Model from `EMBEDDING_MODEL`, key from `VOYAGE_API_KEY`. Chunks are embedded in the pipeline; only the query is embedded at request time.
+Voyage AI (ADR 0005, ADR 0010): `voyage-4-lite`, 1024 dimensions. Model from `EMBEDDING_MODEL`, key from `VOYAGE_API_KEY`. Chunks are embedded in the pipeline; only the query is embedded at request time.
 
 ---
 
@@ -342,4 +342,4 @@ Needs the ERP purchasing tables and marts deferred from the MVP (§5).
 - [ ] MCP persona selection (§11)
 - [ ] Visual design and copy for all pages (§10)
 - [ ] Portfolio domain / subdomain
-- [ ] Exact Voyage model and vector dimension (decide at the start of Phase 2)
+- [x] Exact Voyage model and vector dimension (ADR 0010)

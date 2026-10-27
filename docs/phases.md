@@ -36,8 +36,8 @@ Before Phase 0, the author creates accounts and keys (Claude cannot enter creden
 
 ### Phase 2 — Agent core (days 3–4)
 
-- [ ] ~15 policy documents, chunked and embedded (Voyage) into `retrieval.doc_chunks` with `allowed_roles`; ADR note for the chosen model and dimension
-- [ ] Semantic layer YAML (9 MVP metrics) + compiler with unit tests (spec §7)
+- [x] ~15 policy documents, chunked and embedded (Voyage) into `retrieval.doc_chunks` with `allowed_roles`; ADR note for the chosen model and dimension
+- [x] Semantic layer YAML (9 MVP metrics) + compiler with unit tests (spec §7)
 - [ ] **[MVP]** tools (spec §8.2), each running under the caller's role in a transaction
 - [ ] SQL guard with sqlglot; tests for blocked statements
 - [ ] Hybrid document search with RLS
