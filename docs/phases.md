@@ -26,10 +26,10 @@ Before Phase 0, the author creates accounts and keys (Claude cannot enter creden
 
 ### Phase 1 — Data foundation, just enough (day 2)
 
-- [ ] Seeded generator for the **[MVP]** sources in spec §5.1, with planted anomalies and daily append mode
+- [ ] Seeded generator for the **[MVP]** sources in spec §5.1, with the four planted stories (spec §4.1) and daily append mode
 - [ ] dbt staging → intermediate → **[MVP]** marts (spec §5.2), with key, relationship and freshness tests
-- [ ] DB users `app_agent` and `app_service`; persona roles, RLS policies and column grants per spec §6 in `data/sql/`
-- [ ] Access-control test suite: for every role, forbidden rows and columns are unreachable via direct SQL
+- [ ] Per-persona read-only logins and `app_service` (ADR 0008); persona roles, `ops.persona_scope`, RLS policies and column grants per spec §6 in `data/sql/`
+- [ ] Access-control test suite: for every role, forbidden rows and columns are unreachable via direct SQL, including `set_config` spoofing, `SET ROLE` and writes
 - [ ] `pipeline.yml`: daily generator append → `dbt build` → row in `ops.pipeline_runs`
 
 **Done when:** `make data-generate && make dbt-build` succeeds with all tests green; access-control suite passes for all 4 roles; a manual run of `pipeline.yml` succeeds against `dev`.
@@ -37,7 +37,7 @@ Before Phase 0, the author creates accounts and keys (Claude cannot enter creden
 ### Phase 2 — Agent core (days 3–4)
 
 - [ ] ~15 policy documents, chunked and embedded (Voyage) into `retrieval.doc_chunks` with `allowed_roles`; ADR note for the chosen model and dimension
-- [ ] Semantic layer YAML (6 metrics) + compiler with unit tests (spec §7)
+- [ ] Semantic layer YAML (9 MVP metrics) + compiler with unit tests (spec §7)
 - [ ] **[MVP]** tools (spec §8.2), each running under the caller's role in a transaction
 - [ ] SQL guard with sqlglot; tests for blocked statements
 - [ ] Hybrid document search with RLS
