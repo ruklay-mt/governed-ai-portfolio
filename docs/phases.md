@@ -41,10 +41,10 @@ Before Phase 0, the author creates accounts and keys (Claude cannot enter creden
 - [x] **[MVP]** tools (spec §8.2), each running under the caller's role in a transaction
 - [x] SQL guard with sqlglot; tests for blocked statements
 - [x] Hybrid document search with RLS
-- [ ] Agent loop with guard step, streaming SSE, structured final answer
-- [ ] API: health, personas, samples, chat
-- [ ] Langfuse tracing for every request; `trace_id` returned
-- [ ] Cost guards (spec §16): per-session/IP limits and daily budget in `ops.*`, replay mode
+- [x] Agent loop with guard step, streaming SSE, structured final answer
+- [x] API: health, personas, samples, chat
+- [x] Langfuse tracing for every request; `trace_id` returned
+- [x] Cost guards (spec §16): per-session/IP limits and daily budget in `ops.*`, replay mode
 
 **Done when:** locally, each persona gets a correct answer to 5 sample questions; a sales rep asking for margin gets a clear refusal; tool-level tests prove `run_sql` cannot read a hidden column; exceeding the budget switches to replay mode.
 

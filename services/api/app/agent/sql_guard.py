@@ -47,8 +47,9 @@ ALLOWED_FUNCTIONS = frozenset(
         "ARRAY_AGG", "LOGICAL_AND", "LOGICAL_OR",
         # window
         "ROW_NUMBER", "RANK", "DENSE_RANK", "NTILE", "LAG", "LEAD", "FIRST_VALUE", "LAST_VALUE",
-        # conditional and casts
-        "CASE", "IF", "COALESCE", "NULLIF", "GREATEST", "LEAST", "CAST", "TRY_CAST",
+        # conditional, casts and predicates
+        "EXISTS", "ARRAY", "CASE", "IF", "COALESCE", "NULLIF", "GREATEST", "LEAST", "CAST",
+        "TRY_CAST",
         # date and time
         "CURRENT_DATE", "CURRENT_TIMESTAMP", "EXTRACT", "TIMESTAMP_TRUNC", "DATE_TRUNC",
         "TIME_TO_STR", "DATE_ADD", "DATE_SUB", "DATE_DIFF",
@@ -93,6 +94,9 @@ def _function_name(node: exp.Func) -> str:
 
 
 def _is_allowed(node: exp.Func) -> bool:
+    # sqlglot models the logical operators AND / OR as function nodes; they are not functions.
+    if isinstance(node, exp.Connector):
+        return True
     if isinstance(node, exp.Anonymous):
         return node.name.lower() in ALLOWED_ANONYMOUS
     return node.sql_name() in ALLOWED_FUNCTIONS

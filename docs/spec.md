@@ -36,6 +36,7 @@ Status: draft v0.2 (2026-10-27). v0.2 refocuses on AI engineering, defines a one
 | D10 | Repo visibility | Public, MIT licence | Accepted | 0006 |
 | D11 | Embeddings | Voyage AI `voyage-4-lite`, 1024 dims, model via env | Accepted | 0005, 0010 |
 | D12 | DB access model | One read-only login per persona; RLS scope from `session_user` | Accepted | 0008 |
+| D13 | Answer card | Built from tool results via a `final_answer` tool; sample answers precomputed | Accepted | 0011 |
 
 Record changes as ADRs in `docs/decisions/`.
 
@@ -164,7 +165,7 @@ This is the security story: prompt injection may fool the model, but the model o
 
 `services/api/app/semantic/metrics.yml` defines metrics and dimensions; the compiler turns a request into SQL against marts.
 
-- **[MVP]** metrics: `revenue`, `gross_margin`, `gross_margin_pct`, `order_count`, `avg_discount_pct`, `return_rate`, `ar_overdue_amount`, `tickets_opened`, `sla_breach_rate`. The planted stories (§4.1) need `avg_discount_pct`, `return_rate` and `ar_overdue_amount`.
+- **[MVP]** metrics: `revenue`, `gross_margin`, `gross_margin_pct`, `order_count`, `avg_discount_pct`, `return_rate`, `ar_overdue_amount`, `avg_days_to_pay`, `tickets_opened`, `sla_breach_rate`. The planted stories (§4.1) need `avg_discount_pct`, `return_rate`, `ar_overdue_amount` and `avg_days_to_pay` (ADR 0011).
 - later: `avg_order_value`, `units_sold`, `days_sales_outstanding`, `avg_resolution_hours`, `pipeline_value`, `win_rate`
 
 Dimensions: `date` (day/week/month/quarter/year), `region`, `customer`, `product_category`, `product`, `sales_rep`, `ticket_priority`, `ticket_category`.
@@ -176,11 +177,11 @@ Each metric declares which roles may use it (e.g. `gross_margin` → finance onl
 ## 8. Agent design
 
 ### 8.1 Loop **[MVP]**
-Plain tool-use loop with the Anthropic SDK, max 8 tool calls per question, streamed to the client.
+Plain tool-use loop with the Anthropic SDK, max 8 tool calls per question (identical repeats refused), streamed to the client as events.
 
 1. **Guard** (small model): classify `in_scope | out_of_scope | injection_suspected`. Out of scope → polite decline. Injection suspected → continue but flag in trace; DB enforcement is the real defence.
 2. **Answer** (main model): system prompt with company context, role persona, available metrics, and rules (prefer `get_metric`, cite documents, never claim data it did not retrieve).
-3. **Render**: final answer as structured output — `text`, optional `table`, optional `chart` spec (`type`, `x`, `y`, `series`), `citations[]`, `sql[]`.
+3. **Render** (ADR 0011): the model ends by calling a strict `final_answer` tool with `text`, `assumptions[]`, `table_result_id` (+ `table_rows`), `chart` (`type`, `x`, `y`) and `citations[]`. The API builds the card from stored tool results: the table is the referenced result's rows (never retyped by the model), citations must have been retrieved, and `sql[]` and denials come from the tool results. Unresolvable references are dropped and listed in `issues`.
 
 Models via env: `MODEL_MAIN` (default `claude-sonnet-5-5`), `MODEL_SMALL` (default `claude-haiku-5-5`). Use prompt caching for the system prompt and tool definitions.
 
@@ -214,7 +215,7 @@ Voyage AI (ADR 0005, ADR 0010): `voyage-4-lite`, 1024 dimensions. Model from `EM
 | GET | `/api/health` | liveness + DB warm-up | **[MVP]** |
 | GET | `/api/personas` | roles and personas | **[MVP]** |
 | GET | `/api/samples` | sample questions (with precomputed answers) | **[MVP]** |
-| POST | `/api/chat` | `{persona, session_id, message}` → SSE: `step`, `tool_call`, `tool_result`, `answer`, `usage`, `trace_id` | **[MVP]** |
+| POST | `/api/chat` | `{persona, session_id, message}` → SSE: `mode` (live / cached / replay / limited), `trace_id`, `step`, `tool_call`, `tool_result`, `answer`, `usage`, `error` | **[MVP]** |
 | POST | `/api/compare` | `{question}` → answers for all 4 roles (sample questions served from cache) | later |
 | POST | `/api/actions/{id}/confirm` | execute a pending write action | later |
 | GET | `/api/pipeline/status`, `/api/pipeline/lineage` | from `ops.pipeline_runs` and dbt manifest | later |
@@ -309,7 +310,7 @@ Targets **[DESIGN]**: p95 end-to-end < 10 s for single-tool questions on a warm 
 
 ## 16. Cost controls **[MVP]**
 
-- Sample questions served from precomputed answers (built at deploy).
+- Sample questions served from precomputed answers, built with `make samples-build` and committed (ADR 0011).
 - Per-session limit: 15 live questions; per-IP: 40/day. Counters in `ops.rate_limits`.
 - Daily LLM budget in the API: **US$1.00/day** (env `DAILY_BUDGET_USD`, ADR 0006), tracked in `ops.daily_spend`. When reached, switch to **replay mode** (cached answers only, banner shown).
 - Cloud Run `max-instances=2`; GCP budget alert (~US$5); Anthropic Console spend limit.

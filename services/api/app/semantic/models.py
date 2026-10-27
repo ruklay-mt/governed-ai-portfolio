@@ -35,7 +35,7 @@ class Metric(BaseModel):
     description: str
     model: str
     expression: str
-    unit: Literal["NZD", "percent", "count"]
+    unit: Literal["NZD", "percent", "count", "days"]
     roles: list[str]
 
 

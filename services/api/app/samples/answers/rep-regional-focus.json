@@ -1,0 +1,56 @@
+{
+  "sample_id": "rep-regional-focus",
+  "built_at": "2026-10-27T07:27:13+00:00",
+  "answer": {
+    "text": "The NZ-SOUTH sales guide says to bundle Climbing and Safety Equipment with fitting and inspection advice for tourism operators. They often ask for deeper discounts before summer. Stay within the 15% cap and offer volume terms, using the Discount Approval Process if needed. Summer (December\u2013February) is the peak for Camping, Hiking and Climbing, so approach them now. Stock ships from Christchurch, and Queenstown deliveries take two days.",
+    "assumptions": [
+      "Answered from the regional sales guide only; no sales data was pulled."
+    ],
+    "table": null,
+    "chart": null,
+    "citations": [
+      {
+        "chunk_id": "sales-guide-nz-south#3",
+        "doc_title": "Regional Sales Guide: NZ-SOUTH",
+        "section": "Focus for 2026",
+        "source": "data/documents/sales-guide-nz-south.md"
+      },
+      {
+        "chunk_id": "sales-guide-nz-south#5",
+        "doc_title": "Regional Sales Guide: NZ-SOUTH",
+        "section": "Discounts",
+        "source": "data/documents/sales-guide-nz-south.md"
+      },
+      {
+        "chunk_id": "sales-guide-nz-south#2",
+        "doc_title": "Regional Sales Guide: NZ-SOUTH",
+        "section": "Seasonality",
+        "source": "data/documents/sales-guide-nz-south.md"
+      },
+      {
+        "chunk_id": "sales-guide-nz-south#4",
+        "doc_title": "Regional Sales Guide: NZ-SOUTH",
+        "section": "Practical notes",
+        "source": "data/documents/sales-guide-nz-south.md"
+      },
+      {
+        "chunk_id": "sales-guide-nz-south#1",
+        "doc_title": "Regional Sales Guide: NZ-SOUTH",
+        "section": "Customers",
+        "source": "data/documents/sales-guide-nz-south.md"
+      }
+    ],
+    "sql": [],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 669,
+    "output_tokens": 563,
+    "cache_read_tokens": 3155,
+    "cache_write_tokens": 4255,
+    "cost_usd": 0.016455,
+    "latency_ms": 12845
+  }
+}

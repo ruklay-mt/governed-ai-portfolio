@@ -1,0 +1,45 @@
+{
+  "sample_id": "rep-discount-limit",
+  "built_at": "2026-10-27T07:26:55+00:00",
+  "answer": {
+    "text": "You can give up to 15% off list price per order line without approval. Anything above 15% needs approval before the order is confirmed. From 15.01% to 20% that's your regional sales manager.",
+    "assumptions": [
+      "Applies per order line, across all product categories including Safety Equipment.",
+      "Volume pricing in a signed customer contract counts towards the cap; Head Office promotional prices do not."
+    ],
+    "table": null,
+    "chart": null,
+    "citations": [
+      {
+        "chunk_id": "pricing-policy#2",
+        "doc_title": "Pricing and Discount Policy",
+        "section": "Discount cap",
+        "source": "data/documents/pricing-policy.md"
+      },
+      {
+        "chunk_id": "discount-approval-process#1",
+        "doc_title": "Discount Approval Process",
+        "section": "Who can approve",
+        "source": "data/documents/discount-approval-process.md"
+      },
+      {
+        "chunk_id": "sales-guide-nz-south#5",
+        "doc_title": "Regional Sales Guide: NZ-SOUTH",
+        "section": "Discounts",
+        "source": "data/documents/sales-guide-nz-south.md"
+      }
+    ],
+    "sql": [],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 667,
+    "output_tokens": 447,
+    "cache_read_tokens": 3153,
+    "cache_write_tokens": 4083,
+    "cost_usd": 0.014816,
+    "latency_ms": 19374
+  }
+}

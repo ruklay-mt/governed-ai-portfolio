@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from app import db
 from app.config import Settings, get_settings
+from app.routes import router
 
 app = FastAPI(title="Governed AI Data Assistant API", version="0.1.0")
 app.add_middleware(
@@ -16,6 +17,7 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+app.include_router(router)
 
 
 class Health(BaseModel):

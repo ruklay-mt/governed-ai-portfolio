@@ -1,0 +1,104 @@
+# Sample questions shown per persona (spec §16: served from precomputed answers).
+#
+# `make samples-build` runs each one live, checks `expect`, and writes the answer to
+# answers/<id>.json; the API serves those files for sample questions and in replay mode.
+# `make agent-smoke` runs the same checks without writing files.
+#
+# expect keys (all optional):
+#   table: true         the answer shows a table from a tool result
+#   citations: true     the answer cites at least one document passage
+#   denied: true        a tool was denied (the answer must explain it)
+#   contains: [...]     every string appears in the answer text or table (case-insensitive)
+
+samples:
+  # Mia Tane, sales rep, NZ-SOUTH
+  - id: rep-revenue-by-month
+    persona: sales_rep_nz_south
+    question: What was my region's revenue by month this year?
+    expect: {table: true}
+  - id: rep-top-customers
+    persona: sales_rep_nz_south
+    question: Who are my top 5 customers by revenue last quarter?
+    expect: {table: true}
+  - id: rep-discount-limit
+    persona: sales_rep_nz_south
+    question: What is the largest discount I can give without approval?
+    expect: {citations: true, contains: ["15%"]}
+  - id: rep-tickets-last-month
+    persona: sales_rep_nz_south
+    question: How many support tickets did my customers open last month, by priority?
+    expect: {table: true}
+  - id: rep-regional-focus
+    persona: sales_rep_nz_south
+    question: What should I focus on with tourism operators in my region?
+    expect: {citations: true}
+  - id: rep-margin-refusal
+    persona: sales_rep_nz_south
+    question: What is the gross margin on my sales this year?
+    expect: {denied: true}
+
+  # Liam Chen, sales manager, all regions
+  - id: mgr-revenue-by-region
+    persona: sales_manager
+    question: Which region had the highest revenue last quarter?
+    expect: {table: true}
+  - id: mgr-safety-discounts
+    persona: sales_manager
+    question: Which sales reps gave the highest average discount on Safety Equipment in AU-EAST since April 2026?
+    expect: {table: true, contains: ["Jake Morrison"]}
+  - id: mgr-tent-fault-tickets
+    persona: sales_manager
+    question: Which products had the most product fault tickets in NZ-NORTH in March and April 2026?
+    expect: {table: true, contains: ["TrailPeak"]}
+  - id: mgr-p1-breach-january
+    persona: sales_manager
+    question: What was the SLA breach rate for P1 tickets by region in January 2026?
+    expect: {table: true, contains: ["AU-WEST"]}
+  - id: mgr-returns-policy
+    persona: sales_manager
+    question: How long do customers have to return unused products for change of mind?
+    expect: {citations: true, contains: ["30"]}
+
+  # Raj Patel, finance, all regions
+  - id: fin-safety-margin
+    persona: finance
+    question: How has gross margin % on Safety Equipment in AU-EAST changed by quarter since 2025?
+    expect: {table: true}
+  - id: fin-overdue-by-region
+    persona: finance
+    question: How much is overdue in accounts receivable, by region?
+    expect: {table: true}
+  - id: fin-late-payer
+    persona: finance
+    question: Is Southern Cross Builders taking longer to pay its invoices over time?
+    expect: {contains: ["Southern Cross"]}
+  - id: fin-over-cap-discounts
+    persona: finance
+    question: Which reps gave discounts above the 15% cap on Safety Equipment since April 2026?
+    expect: {contains: ["Jake Morrison"]}
+  - id: fin-credit-terms
+    persona: finance
+    question: What are our standard credit terms, and when is an account put on hold?
+    expect: {citations: true, contains: ["30"]}
+
+  # Sophie Williams, support, all regions
+  - id: sup-tickets-by-priority
+    persona: support
+    question: How many tickets were opened last month, by priority?
+    expect: {table: true}
+  - id: sup-au-west-breaches
+    persona: support
+    question: What was the SLA breach rate in AU-WEST by month from October 2025 to March 2026?
+    expect: {table: true}
+  - id: sup-tent-zip
+    persona: support
+    question: A customer says their TrailPeak tent zip split. What should I do?
+    expect: {citations: true, contains: ["ZB-2602"]}
+  - id: sup-fault-categories
+    persona: support
+    question: Which product categories had the most product fault tickets this year?
+    expect: {table: true}
+  - id: sup-p1-escalation
+    persona: support
+    question: What is the escalation process for a P1 ticket?
+    expect: {citations: true}

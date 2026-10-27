@@ -1,0 +1,65 @@
+{
+  "sample_id": "mgr-revenue-by-region",
+  "built_at": "2026-10-27T07:27:41+00:00",
+  "answer": {
+    "text": "AU-EAST had the highest revenue last quarter at about NZD 13.55 million. NZ-NORTH was next at NZD 8.81 million, then NZ-SOUTH at NZD 6.24 million and AU-WEST at NZD 5.83 million.",
+    "assumptions": [
+      "Last quarter = 2026-07-01 to 2026-09-30",
+      "Revenue is net sales after discounts and returns, in NZD (AUD converted at the monthly rate)"
+    ],
+    "table": {
+      "result_id": "r1",
+      "columns": [
+        "region",
+        "revenue"
+      ],
+      "rows": [
+        [
+          "AU-EAST",
+          13547165.85
+        ],
+        [
+          "NZ-NORTH",
+          8809429.11
+        ],
+        [
+          "NZ-SOUTH",
+          6242661.55
+        ],
+        [
+          "AU-WEST",
+          5830766.09
+        ]
+      ]
+    },
+    "chart": {
+      "type": "bar",
+      "x": "region",
+      "y": "revenue"
+    },
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "get_metric",
+        "sql": "select s.region as region, sum(s.net_amount_nzd) as revenue\nfrom marts.fct_sales as s\nwhere s.order_date between %(start_date)s and %(end_date)s\ngroup by 1\norder by 2 desc nulls last\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-07-01",
+          "end_date": "2026-09-30",
+          "row_limit": 100
+        }
+      }
+    ],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 668,
+    "output_tokens": 488,
+    "cache_read_tokens": 3117,
+    "cache_write_tokens": 3433,
+    "cost_usd": 0.013699,
+    "latency_ms": 21090
+  }
+}

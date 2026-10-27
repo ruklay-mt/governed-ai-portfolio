@@ -60,6 +60,8 @@ make db-users       # set persona login passwords from .env (ADR 0008)
                     # data and dbt targets take TARGET=dev|prod (default dev)
 make api-dev        # run FastAPI locally
 make web-dev        # run Next.js locally
+make agent-smoke    # run sample questions live, check expectations (spends tokens; ARGS="--only id")
+make samples-build  # same, and write passing answers to services/api/app/samples/answers/
 make test           # unit tests (pytest + vitest)
 make eval           # run golden-set evals, write report to evals/reports/
 make lint           # ruff, mypy, eslint, sqlfluff

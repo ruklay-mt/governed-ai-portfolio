@@ -18,6 +18,13 @@ from app.agent.sql_guard import MAX_ROWS, SqlRejected, guard_sql
         "select coalesce(nullif(region, ''), 'unknown'), extract(year from opened_date)"
         " from fct_tickets",
         "select count(*) filter (where is_sla_breached) from fct_tickets",
+        # Logical operators and predicates (sqlglot parses AND/OR/EXISTS as function nodes).
+        "select r.rep_name, count(*) from fct_sales s join dim_sales_rep r"
+        " on r.sales_rep_key = s.sales_rep_key where s.discount_pct > 15"
+        " and s.order_date >= '2026-04-01' or not s.region = 'NZ-NORTH' group by 1",
+        "select * from fct_tickets t where exists (select 1 from fct_sales s"
+        " where s.customer_key = t.customer_key) and t.priority = any(array['P1', 'P2'])"
+        " and t.opened_date between '2026-01-01' and '2026-01-31' and t.subject ilike '%zip%'",
     ],
 )
 def test_allows_read_only_queries(sql: str) -> None:

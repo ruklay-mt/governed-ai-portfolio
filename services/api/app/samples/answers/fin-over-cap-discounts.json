@@ -1,0 +1,57 @@
+{
+  "sample_id": "fin-over-cap-discounts",
+  "built_at": "2026-10-27T07:28:45+00:00",
+  "answer": {
+    "text": "Only Jake Morrison averaged above the 15% cap on Safety Equipment since April 2026, at 23.06%. The other 19 reps averaged between 2.69% and 3.53%.",
+    "assumptions": [
+      "Since April 2026 = 2026-04-01 to 2026-10-27.",
+      "These are average discounts per rep, so other reps may have given individual lines above 15% that this average hides.",
+      "The 15% cap comes from your question. I did not check it against policy documents."
+    ],
+    "table": {
+      "result_id": "r1",
+      "columns": [
+        "sales_rep",
+        "avg_discount_pct"
+      ],
+      "rows": [
+        [
+          "Jake Morrison",
+          23.06
+        ]
+      ]
+    },
+    "chart": {
+      "type": "bar",
+      "x": "sales_rep",
+      "y": "avg_discount_pct"
+    },
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "get_metric",
+        "sql": "select r.rep_name as sales_rep, round(avg(s.discount_pct) filter (where s.line_type = 'sale'), 2) as avg_discount_pct\nfrom marts.fct_sales as s\ninner join marts.dim_sales_rep as r on r.sales_rep_key = s.sales_rep_key\ninner join marts.dim_product as p on p.product_key = s.product_key\nwhere s.order_date between %(start_date)s and %(end_date)s and p.category = any(%(filter_0)s)\ngroup by 1\norder by 2 desc nulls last\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-04-01",
+          "end_date": "2026-10-27",
+          "filter_0": [
+            "Safety Equipment"
+          ],
+          "row_limit": 100
+        }
+      }
+    ],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 683,
+    "output_tokens": 578,
+    "cache_read_tokens": 6584,
+    "cache_write_tokens": 600,
+    "cost_usd": 0.007925,
+    "latency_ms": 7538
+  }
+}

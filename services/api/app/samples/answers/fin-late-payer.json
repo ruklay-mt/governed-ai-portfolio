@@ -1,0 +1,134 @@
+{
+  "sample_id": "fin-late-payer",
+  "built_at": "2026-10-27T07:28:38+00:00",
+  "answer": {
+    "text": "Yes. Southern Cross Builders Pty Ltd paid in about 26\u201328 days through to Q4 2024. Since then the average has climbed every quarter, reaching 36.1 days in Q1 2025 and 76.6 days in Q3 2026. That is well past the 30-day terms and nearly three times the earlier level.",
+    "assumptions": [
+      "'Southern Cross Builders' matched to the customer 'Southern Cross Builders Pty Ltd'.",
+      "Quarterly average days from invoice to full payment, paid invoices only, all history.",
+      "Q4 2026 (from 2026-10-01) has no paid invoices yet, so it shows no value."
+    ],
+    "table": {
+      "result_id": "r3",
+      "columns": [
+        "period",
+        "customer",
+        "avg_days_to_pay"
+      ],
+      "rows": [
+        [
+          "2023-10-01",
+          "Southern Cross Builders Pty Ltd",
+          27.5
+        ],
+        [
+          "2024-01-01",
+          "Southern Cross Builders Pty Ltd",
+          27.6
+        ],
+        [
+          "2024-04-01",
+          "Southern Cross Builders Pty Ltd",
+          27.1
+        ],
+        [
+          "2024-07-01",
+          "Southern Cross Builders Pty Ltd",
+          25.8
+        ],
+        [
+          "2024-10-01",
+          "Southern Cross Builders Pty Ltd",
+          27.4
+        ],
+        [
+          "2025-01-01",
+          "Southern Cross Builders Pty Ltd",
+          36.1
+        ],
+        [
+          "2025-04-01",
+          "Southern Cross Builders Pty Ltd",
+          40.6
+        ],
+        [
+          "2025-07-01",
+          "Southern Cross Builders Pty Ltd",
+          49.5
+        ],
+        [
+          "2025-10-01",
+          "Southern Cross Builders Pty Ltd",
+          55.3
+        ],
+        [
+          "2026-01-01",
+          "Southern Cross Builders Pty Ltd",
+          62.5
+        ],
+        [
+          "2026-04-01",
+          "Southern Cross Builders Pty Ltd",
+          70.4
+        ],
+        [
+          "2026-07-01",
+          "Southern Cross Builders Pty Ltd",
+          76.6
+        ],
+        [
+          "2026-10-01",
+          "Southern Cross Builders Pty Ltd",
+          null
+        ]
+      ]
+    },
+    "chart": {
+      "type": "line",
+      "x": "period",
+      "y": "avg_days_to_pay"
+    },
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "get_metric",
+        "sql": "select date_trunc('quarter', i.invoice_date)::date as period, c.customer_name as customer, round(avg(i.days_to_pay), 1) as avg_days_to_pay\nfrom marts.fct_invoices as i\ninner join marts.dim_customer as c on c.customer_key = i.customer_key\nwhere c.customer_name = any(%(filter_0)s)\ngroup by 1, 2\norder by 1\nlimit %(row_limit)s",
+        "params": {
+          "filter_0": [
+            "Southern Cross Builders"
+          ],
+          "row_limit": 100
+        }
+      },
+      {
+        "result_id": "r2",
+        "tool": "run_sql",
+        "sql": "SELECT DISTINCT customer_name FROM marts.dim_customer WHERE customer_name ILIKE '%southern%' LIMIT 1000",
+        "params": null
+      },
+      {
+        "result_id": "r3",
+        "tool": "get_metric",
+        "sql": "select date_trunc('quarter', i.invoice_date)::date as period, c.customer_name as customer, round(avg(i.days_to_pay), 1) as avg_days_to_pay\nfrom marts.fct_invoices as i\ninner join marts.dim_customer as c on c.customer_key = i.customer_key\nwhere c.customer_name = any(%(filter_0)s)\ngroup by 1, 2\norder by 1\nlimit %(row_limit)s",
+        "params": {
+          "filter_0": [
+            "Southern Cross Builders Pty Ltd"
+          ],
+          "row_limit": 100
+        }
+      }
+    ],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 5,
+    "input_tokens": 682,
+    "output_tokens": 852,
+    "cache_read_tokens": 15052,
+    "cache_write_tokens": 1783,
+    "cost_usd": 0.015515,
+    "latency_ms": 11859
+  }
+}

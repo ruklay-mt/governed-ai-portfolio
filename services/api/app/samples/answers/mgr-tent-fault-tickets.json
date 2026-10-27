@@ -1,0 +1,125 @@
+{
+  "sample_id": "mgr-tent-fault-tickets",
+  "built_at": "2026-10-27T07:27:59+00:00",
+  "answer": {
+    "text": "The TrailPeak 2-Person Tent had by far the most product fault tickets in NZ-NORTH across March and April 2026, with 91 of the 159 total. Next were Southward Ear Muffs 50 (4), Bushcraft Cooler 62 (3), and Bushcraft Trekking Poles 35 and Kea Gas Heater 92 (2 each).",
+    "assumptions": [
+      "March and April 2026 = 2026-03-01 to 2026-04-30",
+      "Product fault = ticket_category 'Product fault'",
+      "Showing the top 10 products"
+    ],
+    "table": {
+      "result_id": "r3",
+      "columns": [
+        "product",
+        "tickets_opened"
+      ],
+      "rows": [
+        [
+          "TrailPeak 2-Person Tent",
+          91
+        ],
+        [
+          "Southward Ear Muffs 50",
+          4
+        ],
+        [
+          "Bushcraft Cooler 62",
+          3
+        ],
+        [
+          "Bushcraft Trekking Poles 35",
+          2
+        ],
+        [
+          "Kea Gas Heater 92",
+          2
+        ],
+        [
+          "Bushcraft Spirit Level 57",
+          1
+        ],
+        [
+          "Bushcraft Fan Heater 84",
+          1
+        ],
+        [
+          "Coastline Life Jacket 56",
+          1
+        ],
+        [
+          "Bushcraft Rain Jacket 60",
+          1
+        ],
+        [
+          "Coastline Jigsaw 5",
+          1
+        ]
+      ]
+    },
+    "chart": {
+      "type": "bar",
+      "x": "product",
+      "y": "tickets_opened"
+    },
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "get_metric",
+        "sql": "select p.product_name as product, count(*) as tickets_opened\nfrom marts.fct_tickets as t\ninner join marts.dim_product as p on p.product_key = t.product_key\nwhere t.opened_date between %(start_date)s and %(end_date)s and t.region = any(%(filter_0)s) and t.category = any(%(filter_1)s)\ngroup by 1\norder by 2 desc nulls last\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-04-30",
+          "filter_0": [
+            "NZ-NORTH"
+          ],
+          "filter_1": [
+            "product_fault"
+          ],
+          "row_limit": 10
+        }
+      },
+      {
+        "result_id": "r2",
+        "tool": "get_metric",
+        "sql": "select t.category as ticket_category, count(*) as tickets_opened\nfrom marts.fct_tickets as t\nwhere t.opened_date between %(start_date)s and %(end_date)s and t.region = any(%(filter_0)s)\ngroup by 1\norder by 2 desc nulls last\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-04-30",
+          "filter_0": [
+            "NZ-NORTH"
+          ],
+          "row_limit": 100
+        }
+      },
+      {
+        "result_id": "r3",
+        "tool": "get_metric",
+        "sql": "select p.product_name as product, count(*) as tickets_opened\nfrom marts.fct_tickets as t\ninner join marts.dim_product as p on p.product_key = t.product_key\nwhere t.opened_date between %(start_date)s and %(end_date)s and t.region = any(%(filter_0)s) and t.category = any(%(filter_1)s)\ngroup by 1\norder by 2 desc nulls last\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-04-30",
+          "filter_0": [
+            "NZ-NORTH"
+          ],
+          "filter_1": [
+            "Product fault"
+          ],
+          "row_limit": 10
+        }
+      }
+    ],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 5,
+    "input_tokens": 686,
+    "output_tokens": 973,
+    "cache_read_tokens": 13500,
+    "cache_write_tokens": 1164,
+    "cost_usd": 0.014848,
+    "latency_ms": 10674
+  }
+}

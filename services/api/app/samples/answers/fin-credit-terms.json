@@ -1,0 +1,38 @@
+{
+  "sample_id": "fin-credit-terms",
+  "built_at": "2026-10-27T07:28:53+00:00",
+  "answer": {
+    "text": "Standard terms are 30 days from invoice date for all trade accounts, unless a signed contract says otherwise. An invoice 60+ days overdue means new orders need Finance approval. An account goes on stop if any invoice is 90+ days overdue or the balance exceeds the credit limit.",
+    "assumptions": [
+      "'On hold' is read as the policy section 'When an account is placed on hold', which covers both the approval requirement and the stop."
+    ],
+    "table": null,
+    "chart": null,
+    "citations": [
+      {
+        "chunk_id": "credit-terms#1",
+        "doc_title": "Credit Terms Policy",
+        "section": "Standard terms",
+        "source": "data/documents/credit-terms.md"
+      },
+      {
+        "chunk_id": "credit-terms#4",
+        "doc_title": "Credit Terms Policy",
+        "section": "When an account is placed on hold",
+        "source": "data/documents/credit-terms.md"
+      }
+    ],
+    "sql": [],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 673,
+    "output_tokens": 447,
+    "cache_read_tokens": 3282,
+    "cache_write_tokens": 4031,
+    "cost_usd": 0.014732,
+    "latency_ms": 7861
+  }
+}

@@ -35,6 +35,7 @@ jobs:
       AGENT_DB_PASSWORD_SALES_MANAGER: ci-sales-manager
       AGENT_DB_PASSWORD_FINANCE: ci-finance
       AGENT_DB_PASSWORD_SUPPORT: ci-support
+      APP_SERVICE_DB_PASSWORD: ci-app-service
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6

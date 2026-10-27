@@ -1,0 +1,123 @@
+{
+  "sample_id": "sup-fault-categories",
+  "built_at": "2026-10-27T07:29:25+00:00",
+  "answer": {
+    "text": "Camping had the most product fault tickets this year with 262, followed by Safety Equipment (174) and Workwear (147). Hand Tools (130) and Power Tools (125) come next, and Generators had the fewest (36).",
+    "assumptions": [
+      "This year = year to date, 2026-01-01 to 2026-10-27",
+      "Product fault = ticket_category 'Product fault', all regions"
+    ],
+    "table": {
+      "result_id": "r3",
+      "columns": [
+        "product_category",
+        "tickets_opened"
+      ],
+      "rows": [
+        [
+          "Camping",
+          262
+        ],
+        [
+          "Safety Equipment",
+          174
+        ],
+        [
+          "Workwear",
+          147
+        ],
+        [
+          "Hand Tools",
+          130
+        ],
+        [
+          "Power Tools",
+          125
+        ],
+        [
+          "Hiking",
+          120
+        ],
+        [
+          "Fasteners",
+          109
+        ],
+        [
+          "Heating",
+          107
+        ],
+        [
+          "Water Sports",
+          87
+        ],
+        [
+          "Lighting",
+          86
+        ],
+        [
+          "Climbing",
+          72
+        ],
+        [
+          "Generators",
+          36
+        ]
+      ]
+    },
+    "chart": {
+      "type": "bar",
+      "x": "product_category",
+      "y": "tickets_opened"
+    },
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "get_metric",
+        "sql": "select p.category as product_category, count(*) as tickets_opened\nfrom marts.fct_tickets as t\ninner join marts.dim_product as p on p.product_key = t.product_key\nwhere t.opened_date between %(start_date)s and %(end_date)s and t.category = any(%(filter_0)s)\ngroup by 1\norder by 2 desc nulls last\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-01-01",
+          "end_date": "2026-10-27",
+          "filter_0": [
+            "product fault"
+          ],
+          "row_limit": 100
+        }
+      },
+      {
+        "result_id": "r2",
+        "tool": "get_metric",
+        "sql": "select t.category as ticket_category, count(*) as tickets_opened\nfrom marts.fct_tickets as t\nwhere t.opened_date between %(start_date)s and %(end_date)s\ngroup by 1\norder by 2 desc nulls last\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-01-01",
+          "end_date": "2026-10-27",
+          "row_limit": 100
+        }
+      },
+      {
+        "result_id": "r3",
+        "tool": "get_metric",
+        "sql": "select p.category as product_category, count(*) as tickets_opened\nfrom marts.fct_tickets as t\ninner join marts.dim_product as p on p.product_key = t.product_key\nwhere t.opened_date between %(start_date)s and %(end_date)s and t.category = any(%(filter_0)s)\ngroup by 1\norder by 2 desc nulls last\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-01-01",
+          "end_date": "2026-10-27",
+          "filter_0": [
+            "Product fault"
+          ],
+          "row_limit": 100
+        }
+      }
+    ],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 5,
+    "input_tokens": 674,
+    "output_tokens": 780,
+    "cache_read_tokens": 9633,
+    "cache_write_tokens": 3878,
+    "cost_usd": 0.018956,
+    "latency_ms": 10751
+  }
+}

@@ -1,7 +1,7 @@
 """Runtime settings, read from environment variables (and `.env` in local development)."""
 
 from functools import lru_cache
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     agent_db_password_sales_manager: SecretStr | None = None
     agent_db_password_finance: SecretStr | None = None
     agent_db_password_support: SecretStr | None = None
+    # Writes ops.* only (rate limits, daily spend). Without it the API stays in replay mode.
+    app_service_db_password: SecretStr | None = None
 
     # Models: names always come from the environment, never from code (CLAUDE.md rule 5).
     anthropic_api_key: SecretStr | None = None
@@ -39,8 +41,13 @@ class Settings(BaseSettings):
     langfuse_public_key: str | None = None
     langfuse_secret_key: SecretStr | None = None
 
+    # Agent (spec §8.1)
+    agent_effort: Literal["low", "medium", "high"] = "medium"
+
     # Cost guards (spec §16)
     daily_budget_usd: float = 1.00
+    session_question_limit: int = 15
+    ip_daily_question_limit: int = 40
 
     # Web: comma-separated in the environment, e.g. "https://a.example,https://b.example".
     cors_origins: Annotated[list[str], NoDecode] = ["http://localhost:3000"]

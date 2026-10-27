@@ -1,4 +1,4 @@
-"""Set the persona logins' passwords from environment variables (ADR 0008).
+"""Set the persona and app_service logins' passwords from environment variables (ADR 0008).
 
 On plain Postgres (CI) the password is hashed (SCRAM) on this machine and only the hash is
 sent, so plain text never reaches server logs. Neon is different: it intercepts ALTER ROLE
@@ -23,6 +23,9 @@ PERSONA_LOGINS = {
     "agent_finance": "AGENT_DB_PASSWORD_FINANCE",
     "agent_support": "AGENT_DB_PASSWORD_SUPPORT",
 }
+# Writes rate limits and daily spend (ops.*) for the cost guards. Optional: without it the API
+# cannot count spend and stays in replay mode.
+SERVICE_LOGINS = {"app_service": "APP_SERVICE_DB_PASSWORD"}
 
 
 def is_neon(database_url: str) -> bool:
@@ -58,8 +61,13 @@ def main() -> int:
         return 1
 
     passwords = {login: os.environ[var].strip() for login, var in PERSONA_LOGINS.items()}
+    passwords |= {
+        login: os.environ[var].strip()
+        for login, var in SERVICE_LOGINS.items()
+        if os.environ.get(var, "").strip()
+    }
     set_passwords(database_url.strip(), passwords)
-    print(f"Set passwords for {len(passwords)} persona logins on {args.target}")
+    print(f"Set passwords for {', '.join(passwords)} on {args.target}")
     return 0
 
 

@@ -1,0 +1,75 @@
+{
+  "sample_id": "mgr-safety-discounts",
+  "built_at": "2026-10-27T07:27:48+00:00",
+  "answer": {
+    "text": "Jake Morrison gave by far the highest average discount on Safety Equipment in AU-EAST since April 2026, at 23.06%. The next highest were Ruby Singh (3.53%), Daniel Fraser (2.91%), Olivia Ngata (2.90%) and Arjun Thompson (2.89%).",
+    "assumptions": [
+      "Since April 2026 = 2026-04-01 to 2026-10-27 (today)",
+      "Average discount off list price on sales lines, filtered to region AU-EAST and category Safety Equipment"
+    ],
+    "table": {
+      "result_id": "r1",
+      "columns": [
+        "sales_rep",
+        "avg_discount_pct"
+      ],
+      "rows": [
+        [
+          "Jake Morrison",
+          23.06
+        ],
+        [
+          "Ruby Singh",
+          3.53
+        ],
+        [
+          "Daniel Fraser",
+          2.91
+        ],
+        [
+          "Olivia Ngata",
+          2.9
+        ],
+        [
+          "Arjun Thompson",
+          2.89
+        ]
+      ]
+    },
+    "chart": {
+      "type": "bar",
+      "x": "sales_rep",
+      "y": "avg_discount_pct"
+    },
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "get_metric",
+        "sql": "select r.rep_name as sales_rep, round(avg(s.discount_pct) filter (where s.line_type = 'sale'), 2) as avg_discount_pct\nfrom marts.fct_sales as s\ninner join marts.dim_sales_rep as r on r.sales_rep_key = s.sales_rep_key\ninner join marts.dim_product as p on p.product_key = s.product_key\nwhere s.order_date between %(start_date)s and %(end_date)s and p.category = any(%(filter_0)s) and s.region = any(%(filter_1)s)\ngroup by 1\norder by 2 desc nulls last\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-04-01",
+          "end_date": "2026-10-27",
+          "filter_0": [
+            "Safety Equipment"
+          ],
+          "filter_1": [
+            "AU-EAST"
+          ],
+          "row_limit": 100
+        }
+      }
+    ],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 688,
+    "output_tokens": 588,
+    "cache_read_tokens": 3137,
+    "cache_write_tokens": 3523,
+    "cost_usd": 0.014892,
+    "latency_ms": 7324
+  }
+}
