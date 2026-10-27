@@ -73,11 +73,31 @@ GitHub Actions ─┘  CI (lint, tests, evals) · daily pipeline · deploy
 
 - Regions: `NZ-NORTH`, `NZ-SOUTH`, `AU-EAST`, `AU-WEST`
 - ~2,000 customer accounts, ~1,500 products in 12 categories
-- ~200,000 order lines over 3 years, with seasonality and a few planted anomalies (a returns spike, a late-paying key account, an SLA breach cluster) so demo questions have interesting answers
+- ~200,000 order lines over 3 years, with Southern Hemisphere seasonality (outdoor gear peaks Dec–Feb, heating Jun–Aug)
 - ~30,000 service tickets with SLAs
 - Policy documents (pricing, returns, warranty, credit terms, support playbooks, regional sales guides): ~15 for the MVP **[MVP]**, ~40 later
 
 The generator must be deterministic (seeded) and able to append "today's" data daily so freshness checks mean something.
+
+### 4.1 Planted stories [MVP]
+
+Each story gives a demo question an answer worth finding, and each one becomes eval cases with known ground truth.
+
+| Story | What is planted | Who sees what | Links to |
+|---|---|---|---|
+| **Discounting erodes margin** | One AU-EAST sales rep gives discounts above the pricing-policy cap (15%) on Safety equipment over the last two quarters. Revenue rises; margin falls. | Sales roles see strong revenue growth. Finance sees the margin drop and the over-cap discounts. | Pricing policy doc; role-difference demo |
+| **Returns spike** | TrailPeak 2-person tents in NZ-NORTH, Mar–Apr 2026: returns about 4× normal, traced to one faulty zip batch. | Sales and support see the returns and the tickets; finance sees the cost. | Returns and warranty docs; support tickets |
+| **Late-paying key account** | One large customer pays later each quarter, now 75+ days against 30-day terms. | Finance only (payment details are hidden from sales). | Credit terms doc; future Collections assistant |
+| **SLA breach cluster** | AU-WEST, Jan 2026: P1 tickets breach SLA together during a staff shortage. | Support and managers. | Support playbook; SLA policy |
+
+### 4.2 Personas [MVP]
+
+| Role | Persona | Location | Region scope |
+|---|---|---|---|
+| `sales_rep` | Mia Tane | Christchurch | NZ-SOUTH |
+| `sales_manager` | Liam Chen | Auckland | all |
+| `finance` | Raj Patel | Sydney | all |
+| `support_agent` | Sophie Williams | Melbourne | all |
 
 ---
 
@@ -89,22 +109,22 @@ Keep this layer small (ADR 0001): build a model only when a tool, metric or eval
 
 | Source | Tables | MVP |
 |---|---|---|
-| ERP | `erp_customers`, `erp_products`, `erp_sales_orders`, `erp_sales_order_lines` | **[MVP]** |
-| ERP | `erp_invoices`, `erp_payments`, `erp_purchase_orders`, `erp_goods_receipts` | later (finance metrics, docflow) |
+| ERP | `erp_customers`, `erp_products`, `erp_sales_orders`, `erp_sales_order_lines`, `erp_invoices`, `erp_payments` | **[MVP]** (invoices/payments for the late-payer story) |
+| ERP | `erp_purchase_orders`, `erp_goods_receipts` | later (docflow) |
 | CRM | `crm_accounts`, `crm_users` (sales reps with region) | **[MVP]** |
 | CRM | `crm_contacts`, `crm_opportunities`, `crm_activities` | later |
 | Service desk | `sd_tickets`, `sd_sla_policies` | **[MVP]** |
 | Documents | `doc_files` (metadata + markdown text) | **[MVP]** |
 
-Deliberate source messiness, kept small: differing customer keys between ERP and CRM, soft deletes, currency (NZD/AUD).
+Returns are order lines with negative quantity and a return reason. Deliberate source messiness, kept small: differing customer keys between ERP and CRM, soft deletes, currency (NZD/AUD).
 
 ### 5.2 dbt layers
 
 - `staging` — 1:1 with sources, renamed, typed, deduplicated
 - `intermediate` — customer key mapping (ERP↔CRM), currency conversion to NZD, SLA calculations
 - `marts`:
-  - **[MVP]** `dim_customer`, `dim_product`, `dim_date`, `dim_sales_rep`, `fct_sales` (order line grain, includes `cost` and `margin`), `fct_tickets` (ticket grain, SLA met/breached)
-  - later: `fct_invoices`, `fct_payments` (AR ageing), `fct_opportunities`
+  - **[MVP]** `dim_customer`, `dim_product`, `dim_date`, `dim_sales_rep`, `fct_sales` (order line grain, includes `discount_pct`, `cost` and `margin`), `fct_tickets` (ticket grain, SLA met/breached), `fct_invoices` (with days overdue, for AR ageing)
+  - later: `fct_payments`, `fct_opportunities`
 - `retrieval` — `doc_chunks` (chunk text, embedding, `allowed_roles`, `region`, source doc, section)
 - `ops` — `rate_limits`, `daily_spend`, `pending_actions`, `pipeline_runs` (written by `app_service` only)
 
@@ -125,7 +145,7 @@ A scheduled GitHub Actions workflow (ADR 0003), daily and on manual dispatch: ge
 | `finance` | all regions | ticket descriptions and contact PII | finance, credit, pricing, returns |
 | `support_agent` | tickets, KB, customer names | all financial columns | support playbooks, KB, warranty, returns |
 
-Demo personas: each role has a fixed persona (e.g. `sales_rep` = "Mia, NZ-SOUTH"). The persona switcher picks one; there is no login.
+Demo personas: each role has a fixed persona (§4.2, e.g. `sales_rep` = Mia Tane, NZ-SOUTH). The persona switcher picks one; there is no login.
 
 **Enforcement (Postgres)**
 - One DB role per persona group (`r_sales_rep`, `r_sales_manager`, `r_finance`, `r_support`), all `NOLOGIN`, holding the grants.
@@ -144,8 +164,8 @@ This is the security story: prompt injection may fool the model, but the model o
 
 `services/api/app/semantic/metrics.yml` defines metrics and dimensions; the compiler turns a request into SQL against marts.
 
-- **[MVP]** metrics: `revenue`, `gross_margin`, `gross_margin_pct`, `order_count`, `tickets_opened`, `sla_breach_rate`
-- later: `avg_order_value`, `units_sold`, `ar_overdue_amount`, `days_sales_outstanding`, `avg_resolution_hours`, `pipeline_value`, `win_rate`
+- **[MVP]** metrics: `revenue`, `gross_margin`, `gross_margin_pct`, `order_count`, `avg_discount_pct`, `return_rate`, `ar_overdue_amount`, `tickets_opened`, `sla_breach_rate`. The planted stories (§4.1) need `avg_discount_pct`, `return_rate` and `ar_overdue_amount`.
+- later: `avg_order_value`, `units_sold`, `days_sales_outstanding`, `avg_resolution_hours`, `pipeline_value`, `win_rate`
 
 Dimensions: `date` (day/week/month/quarter/year), `region`, `customer`, `product_category`, `product`, `sales_rep`, `ticket_priority`, `ticket_category`.
 
