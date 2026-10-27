@@ -25,9 +25,10 @@ data/generator/           Python synthetic data generator
 data/dbt/                 dbt project (staging -> intermediate -> marts)
 data/sql/                 migrations: schemas, roles, RLS policies, grants
 evals/                    golden sets (YAML), runner, reports
-infra/                    Cloud Run service config, API Dockerfile
+infra/                    API Dockerfile, GCP bootstrap script
 .github/workflows/        ci, evals, pipeline (daily data run), deploy
 docs/                     spec.md, phases.md, decisions/ (ADRs)
+notes/                    author's local study notes (git-ignored, never commit)
 ```
 
 ## Stack (see `docs/spec.md` §2 and `docs/decisions/`)
@@ -49,7 +50,8 @@ Keep these working; update this section when you add or change one.
 
 ```
 make setup          # install python + node deps
-make db-migrate     # apply schema, roles, RLS policies
+make db-migrate     # apply schema, roles, RLS policies (DATABASE_URL, Neon dev)
+make db-migrate-prod  # same, against DATABASE_URL_PROD (Neon main)
 make data-generate  # generate synthetic source data into raw schema
 make dbt-build      # dbt build (models + tests)
 make api-dev        # run FastAPI locally

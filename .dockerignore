@@ -1,0 +1,8 @@
+**
+!pyproject.toml
+!uv.lock
+!services/api/**
+!data/generator/pyproject.toml
+**/__pycache__
+**/.pytest_cache
+services/api/tests

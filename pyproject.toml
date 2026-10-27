@@ -1,0 +1,43 @@
+[tool.uv.workspace]
+members = ["services/api", "data/generator"]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "httpx>=0.28",
+    "ruff>=0.8",
+    "sqlfluff>=3.2",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["apps", "notes"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "generator", "migrate"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["services/api/app", "data/sql/migrate.py"]
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["services/api/tests", "data/sql/tests"]
+pythonpath = ["data/sql"]
+addopts = "--import-mode=importlib"
+
+[tool.sqlfluff.core]
+dialect = "postgres"
+max_line_length = 100
+
+[tool.sqlfluff.rules.capitalisation.keywords]
+capitalisation_policy = "lower"
+
+[tool.sqlfluff.rules.capitalisation.functions]
+extended_capitalisation_policy = "lower"
