@@ -38,9 +38,9 @@ Before Phase 0, the author creates accounts and keys (Claude cannot enter creden
 
 - [x] ~15 policy documents, chunked and embedded (Voyage) into `retrieval.doc_chunks` with `allowed_roles`; ADR note for the chosen model and dimension
 - [x] Semantic layer YAML (9 MVP metrics) + compiler with unit tests (spec §7)
-- [ ] **[MVP]** tools (spec §8.2), each running under the caller's role in a transaction
-- [ ] SQL guard with sqlglot; tests for blocked statements
-- [ ] Hybrid document search with RLS
+- [x] **[MVP]** tools (spec §8.2), each running under the caller's role in a transaction
+- [x] SQL guard with sqlglot; tests for blocked statements
+- [x] Hybrid document search with RLS
 - [ ] Agent loop with guard step, streaming SSE, structured final answer
 - [ ] API: health, personas, samples, chat
 - [ ] Langfuse tracing for every request; `trace_id` returned
