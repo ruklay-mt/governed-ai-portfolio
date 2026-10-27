@@ -21,6 +21,7 @@ MVP_METRICS = {
     "avg_discount_pct",
     "return_rate",
     "ar_overdue_amount",
+    "avg_days_to_pay",
     "tickets_opened",
     "sla_breach_rate",
 }
@@ -31,7 +32,7 @@ def compile_for(role: str, **request: object) -> tuple[str, dict[str, object]]:
     return compiled.sql, compiled.params
 
 
-def test_yaml_defines_the_mvp_metrics() -> None:
+def test_yaml_defines_the_mvp_metrics_plus_days_to_pay() -> None:
     assert set(load_semantic_model().metrics) == MVP_METRICS
 
 

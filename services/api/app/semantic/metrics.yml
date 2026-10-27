@@ -101,6 +101,12 @@ metrics:
     expression: round(sum(i.outstanding_nzd) filter (where i.days_overdue > 0), 2)
     unit: NZD
     roles: [r_finance]
+  avg_days_to_pay:
+    description: Average days from invoice date to full payment, for paid invoices (terms are 30 days).
+    model: invoices
+    expression: round(avg(i.days_to_pay), 1)
+    unit: days
+    roles: [r_finance]
   tickets_opened:
     description: Number of service tickets opened.
     model: tickets
