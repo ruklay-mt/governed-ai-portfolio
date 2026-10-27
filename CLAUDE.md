@@ -52,8 +52,10 @@ Keep these working; update this section when you add or change one.
 make setup          # install python + node deps
 make db-migrate     # apply schema, roles, RLS policies (DATABASE_URL, Neon dev)
 make db-migrate-prod  # same, against DATABASE_URL_PROD (Neon main)
-make data-generate  # generate synthetic source data into raw schema
-make dbt-build      # dbt build (models + tests)
+make data-generate  # full rebuild of synthetic source data into raw (SCALE=small for CI)
+make data-append    # add today's data (DATE=YYYY-MM-DD for another day); idempotent
+make dbt-build      # dbt build (models + tests) and source freshness
+                    # data and dbt targets take TARGET=dev|prod (default dev)
 make api-dev        # run FastAPI locally
 make web-dev        # run Next.js locally
 make test           # unit tests (pytest + vitest)
