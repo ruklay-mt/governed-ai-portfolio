@@ -6,7 +6,7 @@ UV_RUN := uv run --all-packages $(ENV_FILE)
 TARGET ?= dev
 SCALE ?= full
 
-.PHONY: setup setup-py setup-web db-migrate db-migrate-prod data-generate data-append dbt-build db-users \
+.PHONY: setup setup-py setup-web db-migrate db-migrate-prod data-generate data-append dbt-build docs-embed db-users \
 	api-dev web-dev test test-py test-web eval lint lint-py lint-web
 
 setup: setup-py setup-web
@@ -33,6 +33,9 @@ dbt-build:
 	$(UV_RUN) python data/dbt/run.py --target $(TARGET) build
 	$(UV_RUN) python data/sql/apply_security.py --target $(TARGET)
 	$(UV_RUN) python data/dbt/run.py --target $(TARGET) source freshness
+
+docs-embed:
+	$(UV_RUN) python -m app.retrieval.ingest --target $(TARGET)
 
 db-users:
 	$(UV_RUN) python data/sql/set_passwords.py --target $(TARGET)
