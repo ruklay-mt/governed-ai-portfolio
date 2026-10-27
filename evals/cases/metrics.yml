@@ -1,0 +1,172 @@
+# Metric questions: the numbers must match a reference query run as the same persona.
+# Reference SQL may use %(today)s (the date the agent was given), so relative periods such as
+# "last quarter" follow the daily data append. See app/evals/cases.py for every check.
+
+cases:
+  - id: m-rep-top-customers-last-quarter
+    category: metrics
+    persona: sales_rep_nz_south
+    question: Who are my top 5 customers by revenue last quarter?
+    expect:
+      table: true
+      only_values: {column: region, values: [NZ-SOUTH]}
+      result_match:
+        key: customer_name
+        top: 5
+        sql: |
+          select c.customer_name, sum(s.net_amount_nzd) as revenue
+          from marts.fct_sales as s
+          inner join marts.dim_customer as c on s.customer_key = c.customer_key
+          where s.order_date >= date_trunc('quarter', %(today)s::date) - interval '3 months'
+            and s.order_date < date_trunc('quarter', %(today)s::date)
+          group by 1
+          order by 2 desc
+          limit 5
+
+  - id: m-rep-revenue-ytd
+    category: metrics
+    persona: sales_rep_nz_south
+    question: What is my region's total revenue so far this year?
+    expect:
+      refused: none
+      result_match:
+        key: revenue
+        sql: |
+          select sum(s.net_amount_nzd) as revenue
+          from marts.fct_sales as s
+          where s.order_date >= date_trunc('year', %(today)s::date)
+            and s.order_date <= %(today)s::date
+
+  - id: m-mgr-top-region-last-quarter
+    category: metrics
+    persona: sales_manager
+    question: Which region had the highest revenue last quarter, and how much was it?
+    expect:
+      result_match:
+        key: revenue
+        top: 1
+        sql: |
+          select s.region, sum(s.net_amount_nzd) as revenue
+          from marts.fct_sales as s
+          where s.order_date >= date_trunc('quarter', %(today)s::date) - interval '3 months'
+            and s.order_date < date_trunc('quarter', %(today)s::date)
+          group by 1
+          order by 2 desc
+          limit 1
+
+  - id: m-mgr-orders-last-month-by-region
+    category: metrics
+    persona: sales_manager
+    question: How many sales orders did each region take last month?
+    expect:
+      table: true
+      result_match:
+        key: order_count
+        sql: |
+          select s.region, count(distinct s.order_number) as order_count
+          from marts.fct_sales as s
+          where s.line_type = 'sale'
+            and s.order_date >= date_trunc('month', %(today)s::date) - interval '1 month'
+            and s.order_date < date_trunc('month', %(today)s::date)
+          group by 1
+
+  - id: m-mgr-safety-discount-reps
+    category: metrics
+    persona: sales_manager
+    question: >-
+      Which sales reps gave the highest average discount on Safety Equipment in AU-EAST
+      since April 2026?
+    note: Planted story (spec §4.1) - one rep discounts far above the cap.
+    expect:
+      table: true
+      contains: [Jake Morrison]
+      result_match:
+        key: rep_name
+        top: 1
+        sql: |
+          select r.rep_name, avg(s.discount_pct) as avg_discount
+          from marts.fct_sales as s
+          inner join marts.dim_product as p on s.product_key = p.product_key
+          inner join marts.dim_sales_rep as r on s.sales_rep_key = r.sales_rep_key
+          where s.line_type = 'sale'
+            and p.category = 'Safety Equipment'
+            and s.region = 'AU-EAST'
+            and s.order_date >= date '2026-04-01'
+          group by 1
+          order by 2 desc
+          limit 1
+
+  - id: m-mgr-trailpeak-fault-tickets
+    category: metrics
+    persona: sales_manager
+    question: Which products had the most product fault tickets in NZ-NORTH in March and April 2026?
+    note: Planted story - a TrailPeak tent zip defect.
+    expect:
+      table: true
+      contains: [TrailPeak]
+      result_match:
+        key: product_name
+        top: 1
+        sql: |
+          select p.product_name, count(*) as tickets
+          from marts.fct_tickets as t
+          inner join marts.dim_product as p on t.product_key = p.product_key
+          where t.region = 'NZ-NORTH'
+            and t.category = 'Product fault'
+            and t.opened_date between date '2026-03-01' and date '2026-04-30'
+          group by 1
+          order by 2 desc
+          limit 1
+
+  - id: m-sup-au-west-p1-breach-january
+    category: metrics
+    persona: support
+    question: What was the SLA breach rate for P1 tickets in AU-WEST in January 2026?
+    note: Planted story - a staffing gap in AU-WEST over the holidays.
+    expect:
+      result_match:
+        key: breach_rate
+        tolerance: 0.02
+        sql: |
+          select round(100.0 * avg(t.is_sla_breached::int), 2) as breach_rate
+          from marts.fct_tickets as t
+          where t.region = 'AU-WEST'
+            and t.priority = 'P1'
+            and t.opened_date between date '2026-01-01' and date '2026-01-31'
+
+  - id: m-sup-tickets-last-month-by-priority
+    category: metrics
+    persona: support
+    question: How many tickets were opened last month, by priority?
+    expect:
+      table: true
+      result_match:
+        key: tickets
+        sql: |
+          select t.priority, count(*) as tickets
+          from marts.fct_tickets as t
+          where t.opened_date >= date_trunc('month', %(today)s::date) - interval '1 month'
+            and t.opened_date < date_trunc('month', %(today)s::date)
+          group by 1
+
+  - id: m-fin-overdue-top-region
+    category: metrics
+    persona: finance
+    question: How much is overdue in accounts receivable, by region?
+    expect:
+      table: true
+      result_match:
+        key: overdue
+        sql: |
+          select i.region, round(sum(i.outstanding_nzd) filter (where i.days_overdue > 0), 2) as overdue
+          from marts.fct_invoices as i
+          group by 1
+
+  - id: m-fin-late-payer-trend
+    category: metrics
+    persona: finance
+    question: Is Southern Cross Builders taking longer to pay its invoices over time?
+    note: Planted story - a large customer drifting from 30 to 60+ days to pay.
+    expect:
+      contains: [Southern Cross]
+      refused: none
