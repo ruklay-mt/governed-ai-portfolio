@@ -55,6 +55,7 @@ make db-migrate-prod  # same, against DATABASE_URL_PROD (Neon main)
 make data-generate  # full rebuild of synthetic source data into raw (SCALE=small for CI)
 make data-append    # add today's data (DATE=YYYY-MM-DD for another day); idempotent
 make dbt-build      # dbt build (models + tests), re-apply marts access policy, freshness
+make docs-embed     # chunk + embed data/documents/*.md into retrieval.* (changed files only)
 make db-users       # set persona login passwords from .env (ADR 0008)
                     # data and dbt targets take TARGET=dev|prod (default dev)
 make api-dev        # run FastAPI locally
