@@ -1,0 +1,14 @@
+# No secrets here: run.py fills these from DATABASE_URL (or DATABASE_URL_PROD).
+harbourline:
+  target: default
+  outputs:
+    default:
+      type: postgres
+      host: "{{ env_var('DBT_HOST') }}"
+      port: "{{ env_var('DBT_PORT', '5432') | int }}"
+      user: "{{ env_var('DBT_USER') }}"
+      password: "{{ env_var('DBT_PASSWORD') }}"
+      dbname: "{{ env_var('DBT_DBNAME') }}"
+      sslmode: "{{ env_var('DBT_SSLMODE', 'prefer') }}"
+      schema: public
+      threads: 4

@@ -35,3 +35,6 @@ evals/reports/*
 .idea/
 .vscode/
 *.zip
+
+# dbt local state
+data/dbt/.user.yml
