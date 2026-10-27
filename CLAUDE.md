@@ -64,7 +64,7 @@ make lint           # ruff, mypy, eslint, sqlfluff
 ## Non-negotiable rules
 
 1. **Synthetic data only.** Never use, copy or paraphrase code, schemas, semantic models or data from any real employer or client.
-2. **Access control lives in the database.** Every query and every document search runs inside a transaction that sets the caller's role (`SET LOCAL ROLE` + `app.*` settings). Never filter by role only in Python or in the prompt. If a tool can bypass RLS, it is a bug.
+2. **Access control lives in the database.** Every query and every document search runs as the caller's own persona login (one read-only DB user per persona, ADR 0008), inside a transaction. RLS scope comes from `session_user`, never from a session setting the SQL could change (`set_config`). Never filter by role only in Python or in the prompt. If a tool can bypass RLS or change its own scope, it is a bug.
 3. **The LLM never gets a privileged connection.** The agent's DB user is read-only and owns nothing. Writes (e.g. create ticket) go through a separate, narrow endpoint that requires user confirmation.
 4. **Generated SQL is untrusted.** Parse with `sqlglot`, allow a single `SELECT`, enforce `LIMIT` and `statement_timeout`.
 5. **No secrets in the repo.** Use `.env` (git-ignored) and `.env.example`. Model names come from env vars, not hard-coded strings.

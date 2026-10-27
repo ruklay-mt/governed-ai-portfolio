@@ -35,6 +35,7 @@ Status: draft v0.2 (2026-10-27). v0.2 refocuses on AI engineering, defines a one
 | D9 | Names | Company "Harbourline Supply Co."; product "Governed AI Data Assistant" | Accepted | 0006 |
 | D10 | Repo visibility | Public, MIT licence | Accepted | 0006 |
 | D11 | Embeddings | Voyage AI, model via env | Accepted | 0005 |
+| D12 | DB access model | One read-only login per persona; RLS scope from `session_user` | Accepted | 0008 |
 
 Record changes as ADRs in `docs/decisions/`.
 
@@ -59,7 +60,7 @@ Visitor ──► Vercel (Next.js)
 GitHub Actions ─┘  CI (lint, tests, evals) · daily pipeline · deploy
 ```
 
-- **Two DB users for the API.** `app_agent` is read-only, owns nothing, and is granted the four persona roles; every agent tool uses it (rule 3). `app_service` writes only to `ops.*` (rate limits, budget, pending actions) and `evals.*`. Neither can bypass RLS.
+- **Separate DB logins (ADR 0008).** Each persona has its own read-only login (`agent_*`) that owns nothing and belongs to exactly one persona role; every agent tool for that persona uses it (rule 3). `app_service` writes only to `ops.*` (rate limits, budget, pending actions) and `evals.*`. None can bypass RLS.
 - **Stateless API.** Cloud Run instances come and go, so counters and budgets live in Postgres, not memory.
 - **Deploy.** GitHub Actions builds the image, pushes to Artifact Registry and deploys with Workload Identity Federation. Secrets live in GCP Secret Manager and Vercel env.
 - **Cold starts** are mitigated as in ADR 0002: static sample answers, a background warm-up call from the landing page, and an explicit "warming up" state.
@@ -127,9 +128,10 @@ A scheduled GitHub Actions workflow (ADR 0003), daily and on manual dispatch: ge
 Demo personas: each role has a fixed persona (e.g. `sales_rep` = "Mia, NZ-SOUTH"). The persona switcher picks one; there is no login.
 
 **Enforcement (Postgres)**
-- One DB role per persona group (`r_sales_rep`, `r_sales_manager`, `r_finance`, `r_support`), all `NOLOGIN`, granted to `app_agent`.
-- Per request: `BEGIN; SET LOCAL ROLE r_x; SET LOCAL app.region = '...'; ... COMMIT;`
-- Row filtering: RLS policies on marts using `current_setting('app.region', true)`.
+- One DB role per persona group (`r_sales_rep`, `r_sales_manager`, `r_finance`, `r_support`), all `NOLOGIN`, holding the grants.
+- One LOGIN user per persona (e.g. `agent_sales_rep_nz_south`), a member of exactly one persona role, with `default_transaction_read_only = on` and `statement_timeout = '8s'` (ADR 0008).
+- Per request: the API takes a connection from that persona's pool and runs the tool inside a transaction.
+- Row filtering: RLS policies on marts read the region from `ops.persona_scope` keyed by `session_user`. They never trust a session setting, because `set_config` can change those from inside a SELECT.
 - Column hiding: column-level `GRANT SELECT (col, ...)` per role. Querying a hidden column must error, and the agent must turn that error into a clear "not permitted for your role" answer.
 - Documents: RLS on `retrieval.doc_chunks` using `allowed_roles`.
 - Tests: a pytest suite that, for every role, asserts forbidden rows/columns are unreachable via every tool, including raw `run_sql`.
@@ -175,8 +177,8 @@ Models via env: `MODEL_MAIN` (default `claude-sonnet-5-5`), `MODEL_SMALL` (defau
 | `create_ticket` | `customer_id`, `summary`, `priority` | `pending_action_id` | does NOT write; UI must confirm via API | later |
 
 ### 8.3 Guardrails **[MVP]**
-- `app_agent` (read-only) for all agent tools; writes only via `/api/actions/{id}/confirm` using `app_service`.
-- SQL allow-list (single SELECT, no `pg_*`/`information_schema` writes, no `SET`, no functions on a deny-list).
+- Per-persona read-only logins for all agent tools; writes only via `/api/actions/{id}/confirm` using `app_service`.
+- SQL guard: single SELECT, no `SET`, `LIMIT` enforced, and a **function allow-list** (aggregates, date/time, maths, basic string). `set_config`, `current_setting`, `pg_*` and any unlisted function are rejected. This is defence in depth; the database stays the boundary (ADR 0008).
 - Max context and output tokens per request; max tool calls per question.
 - Out-of-scope classifier + jailbreak test cases in the eval set.
 

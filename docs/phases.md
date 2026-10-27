@@ -28,8 +28,8 @@ Before Phase 0, the author creates accounts and keys (Claude cannot enter creden
 
 - [ ] Seeded generator for the **[MVP]** sources in spec §5.1, with planted anomalies and daily append mode
 - [ ] dbt staging → intermediate → **[MVP]** marts (spec §5.2), with key, relationship and freshness tests
-- [ ] DB users `app_agent` and `app_service`; persona roles, RLS policies and column grants per spec §6 in `data/sql/`
-- [ ] Access-control test suite: for every role, forbidden rows and columns are unreachable via direct SQL
+- [ ] Per-persona read-only logins and `app_service` (ADR 0008); persona roles, `ops.persona_scope`, RLS policies and column grants per spec §6 in `data/sql/`
+- [ ] Access-control test suite: for every role, forbidden rows and columns are unreachable via direct SQL, including `set_config` spoofing, `SET ROLE` and writes
 - [ ] `pipeline.yml`: daily generator append → `dbt build` → row in `ops.pipeline_runs`
 
 **Done when:** `make data-generate && make dbt-build` succeeds with all tests green; access-control suite passes for all 4 roles; a manual run of `pipeline.yml` succeeds against `dev`.
