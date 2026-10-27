@@ -138,7 +138,8 @@ def test_run_sql_guard_output_still_runs_on_postgres(pools: PersonaPools) -> Non
         "select to_char(order_date, 'YYYY-MM') as month, date_trunc('month', order_date) as m,"
         " string_agg(distinct region, ',') as regions, extract(year from order_date) as y,"
         " count(*) filter (where line_type = 'return') as returns"
-        " from fct_sales group by 1, 2, 4 order by 1 desc limit 3"
+        " from fct_sales where discount_pct >= 0 and (region <> 'X' or region is null)"
+        " group by 1, 2, 4 order by 1 desc limit 3"
     )
     result = call(pools, "finance", "run_sql", sql=sql)
     assert result.status == "ok", result.message
