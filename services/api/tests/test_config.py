@@ -13,6 +13,14 @@ def test_model_names_have_no_hard_coded_default(monkeypatch: pytest.MonkeyPatch)
     assert settings.model_small is None
 
 
+def test_database_url_is_stripped(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", "postgresql://user@host/db?sslmode=require\n")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.database_url == "postgresql://user@host/db?sslmode=require"
+
+
 def test_reads_values_from_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MODEL_MAIN", "model-from-env")
     monkeypatch.setenv("DAILY_BUDGET_USD", "0.5")

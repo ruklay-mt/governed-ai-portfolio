@@ -13,6 +13,14 @@ class Settings(BaseSettings):
     # Database
     database_url: str | None = None
 
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def strip_database_url(cls, value: object) -> object:
+        # Secrets pasted into a terminal often pick up a trailing newline.
+        if isinstance(value, str):
+            return value.strip() or None
+        return value
+
     # Models: names always come from the environment, never from code (CLAUDE.md rule 5).
     anthropic_api_key: SecretStr | None = None
     model_main: str | None = None
