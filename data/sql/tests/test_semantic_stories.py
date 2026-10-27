@@ -45,24 +45,29 @@ def test_discount_story_finance_sees_over_cap_rep(
     assert top_discount > 15
 
 
-def test_returns_story_trailpeak_rate_spikes(
+def test_returns_story_trailpeak_fault_tickets_spike(
     connect_as: Callable[[str], psycopg.Connection],
 ) -> None:
-    def tent_return_rate(regions: list[str]) -> float:
+    # Fault tickets are generated per day at any scale; the returns themselves can be few or none
+    # at CI's small scale (their size is checked at full scale in data/generator/tests).
+    def tent_fault_tickets(regions: list[str]) -> int:
         rows = run(
             connect_as,
             "agent_sales_manager",
-            metric="return_rate",
-            filters={"region": regions, "product": "TrailPeak 2-Person Tent"},
+            metric="tickets_opened",
+            filters={
+                "region": regions,
+                "product": "TrailPeak 2-Person Tent",
+                "ticket_category": "Product fault",
+            },
             time_range="2026-03-01..2026-04-30",
         )
-        return float(rows[0][0] or 0)
+        return int(rows[0][0])
 
-    # Same tent, same months: NZ-NORTH (faulty batch) against the other regions.
-    spike = tent_return_rate(["NZ-NORTH"])
-    elsewhere = tent_return_rate(["NZ-SOUTH", "AU-EAST", "AU-WEST"])
-    assert spike > 0
-    assert spike >= 2 * elsewhere  # about 4x at full scale; small CI data is noisier
+    spike = tent_fault_tickets(["NZ-NORTH"])
+    elsewhere = tent_fault_tickets(["NZ-SOUTH", "AU-EAST", "AU-WEST"])
+    assert spike >= 5
+    assert spike >= 3 * elsewhere
 
 
 def test_late_payer_story_has_overdue_balance(
