@@ -1,0 +1,124 @@
+models:
+  - name: dim_date
+    description: Calendar, one row per day.
+    columns:
+      - name: date_day
+        data_tests: [unique, not_null]
+
+  - name: dim_customer
+    description: One row per ERP customer, with its CRM account where one matches.
+    columns:
+      - name: customer_key
+        data_tests: [unique, not_null]
+      - name: region
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["NZ-NORTH", "NZ-SOUTH", "AU-EAST", "AU-WEST"]
+      - name: crm_account_id
+        description: Null only when no CRM account could be matched.
+        data_tests: [unique]
+      - name: account_owner_rep_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_sales_rep')
+                field: sales_rep_key
+
+  - name: dim_product
+    columns:
+      - name: product_key
+        data_tests: [unique, not_null]
+      - name: category
+        data_tests: [not_null]
+
+  - name: dim_sales_rep
+    columns:
+      - name: sales_rep_key
+        data_tests: [unique, not_null]
+
+  - name: fct_sales
+    description: One row per sales or return line, amounts in NZD.
+    columns:
+      - name: sales_line_key
+        data_tests: [unique, not_null]
+      - name: order_date
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_day
+      - name: customer_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_key
+      - name: product_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_product')
+                field: product_key
+      - name: sales_rep_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_sales_rep')
+                field: sales_rep_key
+      - name: region
+        data_tests: [not_null]
+      - name: line_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["sale", "return"]
+      - name: net_amount_nzd
+        data_tests: [not_null]
+
+  - name: fct_invoices
+    description: One row per invoice with payment status and days overdue as of today.
+    columns:
+      - name: invoice_key
+        data_tests: [unique, not_null]
+      - name: customer_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_key
+      - name: region
+        data_tests: [not_null]
+      - name: invoice_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["paid", "open", "overdue"]
+
+  - name: fct_tickets
+    description: One row per service ticket with SLA outcome.
+    columns:
+      - name: ticket_key
+        data_tests: [unique, not_null]
+      - name: customer_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_key
+      - name: region
+        data_tests: [not_null]
+      - name: priority
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["P1", "P2", "P3", "P4"]
+      - name: is_sla_breached
+        data_tests: [not_null]

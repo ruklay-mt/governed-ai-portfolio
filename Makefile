@@ -3,8 +3,10 @@
 # Load .env when it exists (local development); CI passes env vars directly.
 ENV_FILE := $(if $(wildcard .env),--env-file .env,)
 UV_RUN := uv run --all-packages $(ENV_FILE)
+TARGET ?= dev
+SCALE ?= full
 
-.PHONY: setup setup-py setup-web db-migrate db-migrate-prod data-generate dbt-build \
+.PHONY: setup setup-py setup-web db-migrate db-migrate-prod data-generate data-append dbt-build \
 	api-dev web-dev test test-py test-web eval lint lint-py lint-web
 
 setup: setup-py setup-web
@@ -22,10 +24,14 @@ db-migrate-prod:
 	$(UV_RUN) python data/sql/migrate.py --target prod
 
 data-generate:
-	@echo "data-generate: not implemented yet (Phase 1)"
+	$(UV_RUN) python -m generator --target $(TARGET) --scale $(SCALE)
+
+data-append:
+	$(UV_RUN) python -m generator --target $(TARGET) --scale $(SCALE) --append $(DATE)
 
 dbt-build:
-	@echo "dbt-build: not implemented yet (Phase 1)"
+	$(UV_RUN) python data/dbt/run.py --target $(TARGET) build
+	$(UV_RUN) python data/dbt/run.py --target $(TARGET) source freshness
 
 api-dev:
 	$(UV_RUN) uvicorn app.main:app --reload --port 8000
@@ -50,7 +56,7 @@ lint-py:
 	uv run --all-packages ruff check .
 	uv run --all-packages ruff format --check .
 	uv run --all-packages mypy
-	uv run --all-packages sqlfluff lint data/sql
+	uv run --all-packages sqlfluff lint data/sql data/dbt/models
 
 lint-web:
 	pnpm --filter web lint

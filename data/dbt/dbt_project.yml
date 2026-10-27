@@ -1,0 +1,21 @@
+name: harbourline
+version: "1.0.0"
+profile: harbourline
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: target
+clean-targets: ["target"]
+
+models:
+  harbourline:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table

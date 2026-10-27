@@ -1,0 +1,36 @@
+sources:
+  - name: erp
+    description: ERP extracts, loaded as-is by data/generator.
+    schema: raw
+    tables:
+      - name: erp_customers
+      - name: erp_products
+      - name: erp_sales_orders
+        config:
+          loaded_at_field: "order_date::timestamp"
+          freshness:
+            warn_after: {count: 2, period: day}
+            error_after: {count: 4, period: day}
+      - name: erp_sales_order_lines
+      - name: erp_invoices
+      - name: erp_payments
+      - name: ref_fx_rates
+
+  - name: crm
+    description: CRM extracts. Account references to the ERP are typed by hand.
+    schema: raw
+    tables:
+      - name: crm_users
+      - name: crm_accounts
+
+  - name: service_desk
+    description: Service desk extracts.
+    schema: raw
+    tables:
+      - name: sd_sla_policies
+      - name: sd_tickets
+        config:
+          loaded_at_field: opened_at
+          freshness:
+            warn_after: {count: 2, period: day}
+            error_after: {count: 4, period: day}

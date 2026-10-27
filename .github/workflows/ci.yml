@@ -38,6 +38,8 @@ jobs:
       - run: make setup-py
       - run: make lint-py
       - run: make db-migrate
+      - run: make data-generate SCALE=small
+      - run: make dbt-build
       - run: make test-py
 
   web:
