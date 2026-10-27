@@ -30,6 +30,11 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/portfolio
+      # Throwaway passwords for the CI-only database container.
+      AGENT_DB_PASSWORD_SALES_REP_NZ_SOUTH: ci-sales-rep
+      AGENT_DB_PASSWORD_SALES_MANAGER: ci-sales-manager
+      AGENT_DB_PASSWORD_FINANCE: ci-finance
+      AGENT_DB_PASSWORD_SUPPORT: ci-support
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -40,6 +45,7 @@ jobs:
       - run: make db-migrate
       - run: make data-generate SCALE=small
       - run: make dbt-build
+      - run: make db-users
       - run: make test-py
 
   web:

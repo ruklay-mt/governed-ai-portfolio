@@ -54,7 +54,8 @@ make db-migrate     # apply schema, roles, RLS policies (DATABASE_URL, Neon dev)
 make db-migrate-prod  # same, against DATABASE_URL_PROD (Neon main)
 make data-generate  # full rebuild of synthetic source data into raw (SCALE=small for CI)
 make data-append    # add today's data (DATE=YYYY-MM-DD for another day); idempotent
-make dbt-build      # dbt build (models + tests) and source freshness
+make dbt-build      # dbt build (models + tests), re-apply marts access policy, freshness
+make db-users       # set persona login passwords from .env (ADR 0008)
                     # data and dbt targets take TARGET=dev|prod (default dev)
 make api-dev        # run FastAPI locally
 make web-dev        # run Next.js locally
