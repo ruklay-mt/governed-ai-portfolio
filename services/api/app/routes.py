@@ -12,7 +12,13 @@ from app.agent.cost import UnknownModelPrice
 from app.agent.loop import Event, run_agent
 from app.agent.personas import PERSONAS
 from app.runtime import Runtime, RuntimeUnavailable, get_runtime
-from app.samples.catalogue import cached_answer, find_sample, load_samples
+from app.samples.catalogue import (
+    cached_answer,
+    find_preset,
+    find_sample,
+    load_presets,
+    load_samples,
+)
 
 router = APIRouter(prefix="/api")
 
@@ -35,6 +41,16 @@ class SampleOut(BaseModel):
     id: str
     persona: str
     question: str
+    answer: dict[str, Any] | None
+    usage: dict[str, Any] | None
+
+
+class PresetOut(BaseModel):
+    id: str
+    persona: str
+    question: str
+    category: str
+    eval_file: str
     answer: dict[str, Any] | None
     usage: dict[str, Any] | None
 
@@ -67,6 +83,28 @@ def samples(persona: str | None = None) -> list[SampleOut]:
                 id=sample.id,
                 persona=sample.persona,
                 question=sample.question,
+                answer=cached.answer if cached else None,
+                usage=cached.usage if cached else None,
+            )
+        )
+    return out
+
+
+@router.get("/presets")
+def presets(persona: str | None = None) -> list[PresetOut]:
+    """ "Try to break it" attacks: the eval cases marked `preset: true` (spec §10)."""
+    out: list[PresetOut] = []
+    for preset in load_presets():
+        if persona and preset.persona != persona:
+            continue
+        cached = cached_answer(preset.id)
+        out.append(
+            PresetOut(
+                id=preset.id,
+                persona=preset.persona,
+                question=preset.question,
+                category=preset.category,
+                eval_file=preset.eval_file,
                 answer=cached.answer if cached else None,
                 usage=cached.usage if cached else None,
             )
@@ -120,6 +158,13 @@ def chat(
         admission = runtime.guard.admit(body.session_id, client_ip(request))
         if admission.mode != "live":
             yield _mode(admission.mode, admission.reason)
+            # Presets run live, but keep working from their cached answer when live is paused.
+            preset = find_preset(body.persona, body.message)
+            replay = cached_answer(preset.id) if preset else None
+            if replay is not None:
+                yield _sse(Event(type="answer", data=replay.answer))
+                yield _sse(Event(type="usage", data={**replay.usage, "cost_usd": 0.0}))
+                return
             text = REPLAY_MESSAGE.format(reason=admission.reason)
             yield _sse(Event(type="answer", data={"text": text}))
             return

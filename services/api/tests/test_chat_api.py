@@ -10,7 +10,7 @@ from app.agent.loop import Event
 from app.main import app
 from app.ops.guards import Admission
 from app.runtime import Runtime
-from app.samples.catalogue import CachedAnswer, load_samples
+from app.samples.catalogue import CachedAnswer, load_presets, load_samples
 
 
 class FakeGuard:
@@ -131,3 +131,39 @@ def test_client_ip_uses_first_forwarded_hop() -> None:
         client = None
 
     assert routes.client_ip(cast(Any, FakeRequest())) == "203.0.113.7"
+
+
+def test_presets_are_the_eval_cases_marked_preset() -> None:
+    response = TestClient(app).get("/api/presets")
+    presets = response.json()
+    assert len(presets) >= 6
+    assert all(p["eval_file"].startswith("evals/cases/") for p in presets)
+    assert {p["category"] for p in presets} <= {"access_control", "robustness"}
+
+
+def test_preset_runs_live_when_budget_allows(monkeypatch: pytest.MonkeyPatch) -> None:
+    preset = load_presets()[0]
+
+    def fake_agent(*_: Any) -> Iterator[Event]:
+        yield Event(type="answer", data={"text": "Live refusal."})
+        yield Event(type="usage", data={"cost_usd": 0.01})
+
+    monkeypatch.setattr(routes, "run_agent", fake_agent)
+    guard = FakeGuard(Admission(mode="live"))
+    parsed = events(chat(client_with(guard), preset.question, preset.persona).text)
+    assert parsed[0][1]["mode"] == "live"
+    assert guard.spent == [0.01]
+
+
+def test_preset_replays_cached_answer_when_live_is_paused(monkeypatch: pytest.MonkeyPatch) -> None:
+    preset = load_presets()[0]
+    cached = CachedAnswer(
+        sample_id=preset.id, built_at="2026-10-28", answer={"text": "Refused."}, usage={}
+    )
+    monkeypatch.setattr(routes, "cached_answer", lambda item_id: cached)
+    monkeypatch.setattr(routes, "run_agent", lambda *a: pytest.fail("agent must not run"))
+    guard = FakeGuard(Admission(mode="replay", reason="daily budget reached"))
+    parsed = events(chat(client_with(guard), preset.question, preset.persona).text)
+    assert parsed[0][1]["mode"] == "replay"
+    assert parsed[1] == ("answer", {"text": "Refused."})
+    assert parsed[2][1]["cost_usd"] == 0.0
