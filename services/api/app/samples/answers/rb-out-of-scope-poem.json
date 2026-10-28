@@ -1,0 +1,25 @@
+{
+  "sample_id": "rb-out-of-scope-poem",
+  "built_at": "2026-10-28T08:34:01+00:00",
+  "answer": {
+    "text": "I can only help with Harbourline Supply Co.'s business data and policies - sales, customers, products, invoices, service tickets and company policy documents. Try one of the sample questions to see what I can do.",
+    "assumptions": [],
+    "table": null,
+    "chart": null,
+    "citations": [],
+    "sql": [],
+    "denials": [],
+    "issues": [
+      "out of scope: Writing a poem about the ocean is creative content unrelated to Harbourline's sales, customers, products, invoices, payments, service tickets, SLAs, or company policies."
+    ]
+  },
+  "usage": {
+    "model_calls": 1,
+    "input_tokens": 679,
+    "output_tokens": 75,
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "cost_usd": 0.000105,
+    "latency_ms": 1687
+  }
+}

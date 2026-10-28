@@ -19,6 +19,8 @@ COPY data/generator/pyproject.toml data/generator/
 RUN uv sync --frozen --no-dev --package harbourline-api --no-install-workspace
 
 COPY services/api services/api
+# Presets for "Try to break it" are the eval cases marked `preset: true` (ADR 0013).
+COPY evals/cases evals/cases
 RUN uv sync --frozen --no-dev --package harbourline-api
 
 RUN useradd --system --no-create-home app
