@@ -6,6 +6,7 @@ on:
     paths:
       - services/api/**
       - infra/api.Dockerfile
+      - evals/cases/** # presets are read from the eval cases (ADR 0013)
       - pyproject.toml
       - uv.lock
       - .github/workflows/deploy.yml
@@ -42,13 +43,24 @@ jobs:
           docker build -f infra/api.Dockerfile -t "$IMAGE" .
           docker push "$IMAGE"
 
+      # Secrets come from Secret Manager (values added by the owner, ADR 0013); plain settings
+      # from repository variables. Model names are never hard-coded (CLAUDE.md rule 5).
       - name: Deploy to Cloud Run
+        env:
+          SECRETS: >-
+            DATABASE_URL=database-url:latest,AGENT_DB_PASSWORD_SALES_REP_NZ_SOUTH=agent-db-password-sales-rep-nz-south:latest,AGENT_DB_PASSWORD_SALES_MANAGER=agent-db-password-sales-manager:latest,AGENT_DB_PASSWORD_FINANCE=agent-db-password-finance:latest,AGENT_DB_PASSWORD_SUPPORT=agent-db-password-support:latest,APP_SERVICE_DB_PASSWORD=app-service-db-password:latest,ANTHROPIC_API_KEY=anthropic-api-key:latest,VOYAGE_API_KEY=voyage-api-key:latest,LANGFUSE_SECRET_KEY=langfuse-secret-key:latest
+          ENV_VARS: >-
+            MODEL_MAIN=${{ vars.MODEL_MAIN }},MODEL_SMALL=${{ vars.MODEL_SMALL }},EMBEDDING_MODEL=${{ vars.EMBEDDING_MODEL }},LANGFUSE_HOST=${{ vars.LANGFUSE_HOST }},LANGFUSE_PUBLIC_KEY=${{ vars.LANGFUSE_PUBLIC_KEY }}
+          CORS_ORIGINS: ${{ vars.CORS_ORIGINS }}
         run: |
+          if [ -z "$CORS_ORIGINS" ]; then echo "::error::Set the CORS_ORIGINS repository variable"; exit 1; fi
+          # CORS_ORIGINS may hold commas, so it goes in with a custom delimiter (gcloud topic escaping).
           gcloud run deploy "$SERVICE" \
             --image "$IMAGE" \
             --region "${{ vars.GCP_REGION }}" \
             --service-account "${{ vars.GCP_RUNTIME_SA }}" \
-            --set-secrets DATABASE_URL=database-url:latest \
+            --set-secrets "$SECRETS" \
+            --set-env-vars "^@^${ENV_VARS//,/@}@CORS_ORIGINS=$CORS_ORIGINS" \
             --min-instances 0 \
             --max-instances 2 \
             --timeout 300 \
@@ -59,4 +71,9 @@ jobs:
       - name: Smoke test
         run: |
           url=$(gcloud run services describe "$SERVICE" --region "${{ vars.GCP_REGION }}" --format 'value(status.url)')
-          curl --fail --silent --show-error --max-time 60 "$url/api/health"
+          health=$(curl --fail --silent --show-error --max-time 60 "$url/api/health")
+          echo "$health"
+          # db must be ok: it proves app_service can log in, so cost guards work in production.
+          echo "$health" | grep -q '"db":"ok"'
+          presets=$(curl --fail --silent --show-error --max-time 30 "$url/api/presets")
+          [ "$(echo "$presets" | jq length)" -gt 0 ]

@@ -10,7 +10,19 @@ PROJECT_ID=${1:?project id}
 REPO=${2:?github owner/repo}
 REGION=australia-southeast1
 AR_REPO=portfolio
-SECRET=database-url
+# Runtime secrets (values are added by the owner, never by this script). DATABASE_URL holds
+# only host + database: the API connects as persona logins and app_service (ADR 0013).
+SECRETS=(
+  database-url
+  agent-db-password-sales-rep-nz-south
+  agent-db-password-sales-manager
+  agent-db-password-finance
+  agent-db-password-support
+  app-service-db-password
+  anthropic-api-key
+  voyage-api-key
+  langfuse-secret-key
+)
 RUNTIME_SA=api-runtime@${PROJECT_ID}.iam.gserviceaccount.com
 DEPLOYER_SA=github-deployer@${PROJECT_ID}.iam.gserviceaccount.com
 POOL=github
@@ -33,11 +45,13 @@ gcloud iam service-accounts describe "$RUNTIME_SA" >/dev/null 2>&1 ||
 gcloud iam service-accounts describe "$DEPLOYER_SA" >/dev/null 2>&1 ||
   gcloud iam service-accounts create github-deployer --display-name "GitHub Actions deployer"
 
-echo "Secret (value is added separately by the owner)"
-gcloud secrets describe "$SECRET" >/dev/null 2>&1 ||
-  gcloud secrets create "$SECRET" --replication-policy automatic
-gcloud secrets add-iam-policy-binding "$SECRET" \
-  --member "serviceAccount:$RUNTIME_SA" --role roles/secretmanager.secretAccessor >/dev/null
+echo "Secrets (values are added separately by the owner)"
+for secret in "${SECRETS[@]}"; do
+  gcloud secrets describe "$secret" >/dev/null 2>&1 ||
+    gcloud secrets create "$secret" --replication-policy automatic
+  gcloud secrets add-iam-policy-binding "$secret" \
+    --member "serviceAccount:$RUNTIME_SA" --role roles/secretmanager.secretAccessor >/dev/null
+done
 
 echo "Deployer permissions"
 for role in roles/run.admin roles/artifactregistry.writer; do
