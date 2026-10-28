@@ -52,7 +52,7 @@ Before Phase 0, the author creates accounts and keys (Claude cannot enter creden
 
 - [x] Eval case format and runner (spec §12); ~30 cases across 4 categories
 - [x] Deterministic checkers; LLM-as-judge with rubric only where needed
-- [ ] `evals.yml` runs on relevant PRs against Neon `dev` and fails under threshold
+- [x] `evals.yml` runs on relevant PRs against Neon `dev` and fails under threshold (broken-prompt check: #14)
 - [x] Out-of-scope and injection cases pass
 
 **Done when:** `make eval` writes a report to `evals/reports/`; `access_control` is 100% and overall ≥ 85%; a deliberately broken prompt change fails CI.
