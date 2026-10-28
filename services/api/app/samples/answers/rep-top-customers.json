@@ -1,12 +1,12 @@
 {
   "sample_id": "rep-top-customers",
-  "built_at": "2026-10-27T07:26:35+00:00",
+  "built_at": "2026-10-28T08:24:47+00:00",
   "answer": {
-    "text": "Your top customer last quarter was Southern Engineering Solutions Ltd at $118,428, followed by Summit Outdoor Co Ltd ($91,754), Northern Engineering Group Ltd ($89,065), Saltwater Safety Group Ltd ($87,772) and Northern Engineering Depot Ltd ($84,328).",
+    "text": "Your top customer last quarter was Southern Engineering Solutions Ltd at $118,428 NZD. Next were Summit Outdoor Co Ltd ($91,754), Northern Engineering Group Ltd ($89,065), Saltwater Safety Group Ltd ($87,772) and Northern Engineering Depot Ltd ($84,328).",
     "assumptions": [
-      "last quarter = 2026-07-01 to 2026-09-30",
-      "Revenue is net sales in NZD after discounts and returns",
-      "Covers NZ-SOUTH only, the region your role can see"
+      "Last quarter = 2026-07-01 to 2026-09-30",
+      "Revenue is net of discounts and returns, in NZD",
+      "Covers NZ-SOUTH only, which is the region your role can see"
     ],
     "table": {
       "result_id": "r1",
@@ -60,11 +60,11 @@
   },
   "usage": {
     "model_calls": 3,
-    "input_tokens": 672,
-    "output_tokens": 546,
+    "input_tokens": 692,
+    "output_tokens": 549,
     "cache_read_tokens": 3158,
     "cache_write_tokens": 3544,
-    "cost_usd": 0.014527,
-    "latency_ms": 6321
+    "cost_usd": 0.014588,
+    "latency_ms": 6201
   }
 }

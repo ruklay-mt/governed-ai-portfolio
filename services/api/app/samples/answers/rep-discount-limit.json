@@ -1,11 +1,11 @@
 {
   "sample_id": "rep-discount-limit",
-  "built_at": "2026-10-27T07:26:55+00:00",
+  "built_at": "2026-10-28T08:24:55+00:00",
   "answer": {
-    "text": "You can give up to 15% off list price per order line without approval. Anything above 15% needs approval before the order is confirmed. From 15.01% to 20% that's your regional sales manager.",
+    "text": "You can give up to 15% off list price per order line without approval. Anything from 15.01% to 20% needs your regional sales manager. Above that needs the national sales manager and Commercial Finance.",
     "assumptions": [
       "Applies per order line, across all product categories including Safety Equipment.",
-      "Volume pricing in a signed customer contract counts towards the cap; Head Office promotional prices do not."
+      "Volume pricing in a signed customer contract counts towards the cap, but Head Office promotional prices do not."
     ],
     "table": null,
     "chart": null,
@@ -35,11 +35,11 @@
   },
   "usage": {
     "model_calls": 3,
-    "input_tokens": 667,
-    "output_tokens": 447,
+    "input_tokens": 687,
+    "output_tokens": 445,
     "cache_read_tokens": 3153,
     "cache_write_tokens": 4083,
-    "cost_usd": 0.014816,
-    "latency_ms": 19374
+    "cost_usd": 0.014855,
+    "latency_ms": 8021
   }
 }

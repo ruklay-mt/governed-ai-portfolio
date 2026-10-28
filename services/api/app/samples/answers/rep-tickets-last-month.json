@@ -1,8 +1,8 @@
 {
   "sample_id": "rep-tickets-last-month",
-  "built_at": "2026-10-27T07:27:00+00:00",
+  "built_at": "2026-10-28T08:25:02+00:00",
   "answer": {
-    "text": "Customers in NZ-SOUTH opened 181 tickets last month (September 2026): P3 91, P4 50, P2 29 and P1 11.",
+    "text": "Customers in NZ-SOUTH opened 181 tickets last month (September 2026). By priority: P3 had 91, P4 had 50, P2 had 29 and P1 had 11.",
     "assumptions": [
       "last month = 2026-09-01 to 2026-09-30",
       "Data limited to NZ-SOUTH, the region your role can see",
@@ -56,11 +56,11 @@
   },
   "usage": {
     "model_calls": 3,
-    "input_tokens": 671,
-    "output_tokens": 469,
+    "input_tokens": 691,
+    "output_tokens": 482,
     "cache_read_tokens": 3157,
     "cache_write_tokens": 3417,
-    "cost_usd": 0.013438,
-    "latency_ms": 5529
+    "cost_usd": 0.013561,
+    "latency_ms": 6088
   }
 }

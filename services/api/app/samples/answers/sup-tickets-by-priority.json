@@ -1,10 +1,10 @@
 {
   "sample_id": "sup-tickets-by-priority",
-  "built_at": "2026-10-27T07:29:00+00:00",
+  "built_at": "2026-10-28T08:26:43+00:00",
   "answer": {
-    "text": "Last month (September 2026) there were 936 tickets opened: P3 433, P4 273, P2 190 and P1 40.",
+    "text": "Last month (September 2026) 936 tickets were opened across all regions: P3 had 433, P4 had 273, P2 had 190 and P1 had 40.",
     "assumptions": [
-      "last_month = 2026-09-01 to 2026-09-30",
+      "last_month = 2026-09-01 to 2026-09-30 (calendar dates)",
       "All regions included",
       "Total of 936 is the sum of the four priority rows"
     ],
@@ -56,11 +56,11 @@
   },
   "usage": {
     "model_calls": 3,
-    "input_tokens": 668,
-    "output_tokens": 449,
+    "input_tokens": 688,
+    "output_tokens": 466,
     "cache_read_tokens": 2937,
     "cache_write_tokens": 3197,
-    "cost_usd": 0.012615,
-    "latency_ms": 6709
+    "cost_usd": 0.012806,
+    "latency_ms": 6097
   }
 }

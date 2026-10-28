@@ -1,8 +1,8 @@
 {
   "sample_id": "sup-p1-escalation",
-  "built_at": "2026-10-27T07:29:32+00:00",
+  "built_at": "2026-10-28T08:27:20+00:00",
   "answer": {
-    "text": "Within the first hour, phone the customer, assign an owner who keeps the ticket, and post it in the regional P1 channel. In hours 2 to 6, update the customer every 2 hours and check other warehouses for stock. If no fix is in sight by hour 4, escalate to the regional support lead. If the P1 won't be resolved within 8 hours, the support lead informs the regional sales manager and the customer's account owner, and agrees a recovery plan with the customer. After resolution, record the root cause category.",
+    "text": "Within the first hour, phone the customer, assign an owner who stays on the ticket, and post it in the regional P1 channel. In hours 2 to 6, check other warehouses' stock (inter-region transfers need no manager approval) and update the customer every 2 hours. If no fix is in sight by hour 4, escalate to the regional support lead. If it won't be resolved within 8 hours, the support lead informs the regional sales manager and the customer's account owner, and agrees a recovery plan with the customer. After resolution, record the root cause category. Clusters of P1 breaches in a region are reviewed in the weekly SLA meeting.",
     "assumptions": [],
     "table": null,
     "chart": null,
@@ -38,11 +38,11 @@
   },
   "usage": {
     "model_calls": 3,
-    "input_tokens": 669,
-    "output_tokens": 509,
+    "input_tokens": 689,
+    "output_tokens": 543,
     "cache_read_tokens": 2938,
     "cache_write_tokens": 3834,
-    "cost_usd": 0.01479,
-    "latency_ms": 7116
+    "cost_usd": 0.015218,
+    "latency_ms": 7302
   }
 }

@@ -1,12 +1,11 @@
 {
   "sample_id": "mgr-p1-breach-january",
-  "built_at": "2026-10-27T07:28:05+00:00",
+  "built_at": "2026-10-28T08:25:49+00:00",
   "answer": {
-    "text": "In January 2026, AU-WEST had by far the highest P1 SLA breach rate at 80.0%. NZ-SOUTH was 14.29%, AU-EAST 10.53% and NZ-NORTH 5.88%.",
+    "text": "In January 2026, AU-WEST had by far the highest P1 SLA breach rate at 80.0%. NZ-SOUTH was next at 14.29%, then AU-EAST at 10.53% and NZ-NORTH at 5.88%.",
     "assumptions": [
       "January 2026 = 2026-01-01 to 2026-01-31",
-      "P1 = ticket_priority 'P1'",
-      "sla_breach_rate is the percentage of tickets that breached their resolution SLA"
+      "Breach rate = percentage of P1 tickets that breached their resolution SLA"
     ],
     "table": {
       "result_id": "r1",
@@ -59,11 +58,11 @@
   },
   "usage": {
     "model_calls": 3,
-    "input_tokens": 678,
-    "output_tokens": 557,
+    "input_tokens": 698,
+    "output_tokens": 542,
     "cache_read_tokens": 3127,
     "cache_write_tokens": 3477,
-    "cost_usd": 0.014339,
-    "latency_ms": 5933
+    "cost_usd": 0.01421,
+    "latency_ms": 6530
   }
 }

@@ -1,6 +1,6 @@
 {
   "sample_id": "mgr-revenue-by-region",
-  "built_at": "2026-10-27T07:27:41+00:00",
+  "built_at": "2026-10-28T08:25:22+00:00",
   "answer": {
     "text": "AU-EAST had the highest revenue last quarter at about NZD 13.55 million. NZ-NORTH was next at NZD 8.81 million, then NZ-SOUTH at NZD 6.24 million and AU-WEST at NZD 5.83 million.",
     "assumptions": [
@@ -55,11 +55,11 @@
   },
   "usage": {
     "model_calls": 3,
-    "input_tokens": 668,
+    "input_tokens": 688,
     "output_tokens": 488,
     "cache_read_tokens": 3117,
     "cache_write_tokens": 3433,
-    "cost_usd": 0.013699,
-    "latency_ms": 21090
+    "cost_usd": 0.013701,
+    "latency_ms": 6148
   }
 }

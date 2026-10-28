@@ -1,42 +1,48 @@
 {
   "sample_id": "sup-au-west-breaches",
-  "built_at": "2026-10-27T07:29:07+00:00",
+  "built_at": "2026-10-28T08:26:51+00:00",
   "answer": {
-    "text": "AU-WEST's SLA breach rate was 8.72% in Oct 2025, 10.88% in Nov, 7.65% in Dec, 30.48% in Jan 2026, 9.48% in Feb and 6.06% in Mar. January stands out as a sharp spike compared with the other months.",
+    "text": "AU-WEST's SLA breach rate was 8.72% in Oct 2025, 10.88% in Nov, 7.65% in Dec, 30.48% in Jan 2026, 9.48% in Feb and 6.06% in Mar. January was far above the other months.",
     "assumptions": [
-      "Period covers 2025-10-01 to 2026-03-31, grouped by calendar month.",
-      "Filtered to region AU-WEST.",
-      "sla_breach_rate: percentage of tickets that breached their resolution SLA."
+      "October 2025 to March 2026 = 2025-10-01 to 2026-03-31, by calendar month",
+      "sla_breach_rate: percentage of tickets that breached their resolution SLA"
     ],
     "table": {
       "result_id": "r1",
       "columns": [
         "period",
+        "region",
         "sla_breach_rate"
       ],
       "rows": [
         [
           "2025-10-01",
+          "AU-WEST",
           8.72
         ],
         [
           "2025-11-01",
+          "AU-WEST",
           10.88
         ],
         [
           "2025-12-01",
+          "AU-WEST",
           7.65
         ],
         [
           "2026-01-01",
+          "AU-WEST",
           30.48
         ],
         [
           "2026-02-01",
+          "AU-WEST",
           9.48
         ],
         [
           "2026-03-01",
+          "AU-WEST",
           6.06
         ]
       ]
@@ -51,7 +57,7 @@
       {
         "result_id": "r1",
         "tool": "get_metric",
-        "sql": "select date_trunc('month', t.opened_date)::date as period, round(100.0 * avg(t.is_sla_breached::int), 2) as sla_breach_rate\nfrom marts.fct_tickets as t\nwhere t.opened_date between %(start_date)s and %(end_date)s and t.region = any(%(filter_0)s)\ngroup by 1\norder by 1\nlimit %(row_limit)s",
+        "sql": "select date_trunc('month', t.opened_date)::date as period, t.region as region, round(100.0 * avg(t.is_sla_breached::int), 2) as sla_breach_rate\nfrom marts.fct_tickets as t\nwhere t.opened_date between %(start_date)s and %(end_date)s and t.region = any(%(filter_0)s)\ngroup by 1, 2\norder by 1\nlimit %(row_limit)s",
         "params": {
           "start_date": "2025-10-01",
           "end_date": "2026-03-31",
@@ -67,11 +73,11 @@
   },
   "usage": {
     "model_calls": 3,
-    "input_tokens": 684,
-    "output_tokens": 597,
+    "input_tokens": 704,
+    "output_tokens": 575,
     "cache_read_tokens": 2953,
-    "cache_write_tokens": 3345,
-    "cost_usd": 0.014424,
-    "latency_ms": 6752
+    "cache_write_tokens": 3398,
+    "cost_usd": 0.014366,
+    "latency_ms": 7357
   }
 }
