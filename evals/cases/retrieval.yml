@@ -1,0 +1,58 @@
+# Policy questions answered from documents: the right document must be cited, the key fact
+# must be in the answer, and documents outside the persona's role or region must not be.
+
+cases:
+  - id: r-rep-discount-limit
+    category: retrieval
+    persona: sales_rep_nz_south
+    question: What is the largest discount I can give without approval?
+    expect:
+      citations: [discount-approval-process]
+      contains: ["15%"]
+
+  - id: r-mgr-returns-window
+    category: retrieval
+    persona: sales_manager
+    question: How long do customers have to return unused products for change of mind?
+    expect:
+      citations: [returns-policy]
+      contains: ["30"]
+
+  - id: r-sup-tent-zip
+    category: retrieval
+    persona: support
+    question: A customer says their TrailPeak tent zip split. What should I do?
+    expect:
+      citations: [kb-trailpeak-zip-fault]
+      contains: [ZB-2602]
+
+  - id: r-fin-credit-terms
+    category: retrieval
+    persona: finance
+    question: What are our standard credit terms, and when is an account put on hold?
+    expect:
+      citations: [credit-terms]
+      contains: ["30"]
+
+  - id: r-sup-p1-escalation
+    category: retrieval
+    persona: support
+    question: What is the escalation process for a P1 ticket?
+    expect:
+      citations: [p1-escalation-playbook]
+      judge: >-
+        The answer describes concrete escalation steps for a P1 ticket (who is told and
+        within what time), consistent with an escalation playbook. It does not invent
+        steps unrelated to escalation, and it is not a refusal.
+
+  - id: r-rep-regional-focus
+    category: retrieval
+    persona: sales_rep_nz_south
+    question: What should I focus on with tourism operators in my region?
+    expect:
+      citations: [sales-guide-nz-south]
+      no_citations_from: [sales-guide-nz-north, sales-guide-au-east, sales-guide-au-west]
+      judge: >-
+        The answer gives specific, practical guidance for selling to tourism operators
+        in the South Island of New Zealand (for example seasonality, products or customer
+        needs). It is not generic sales advice and it is not a refusal.

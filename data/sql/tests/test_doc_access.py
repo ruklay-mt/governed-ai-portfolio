@@ -66,11 +66,19 @@ def test_sales_rep_sees_only_own_regional_guide(
 
 
 @pytest.mark.parametrize("login", sorted(SCOPES))
-def test_personas_cannot_read_document_metadata_or_ops_tables(
+def test_personas_cannot_read_document_metadata_ops_or_eval_tables(
     connect_as: Callable[[str], psycopg.Connection], docs_loaded: None, login: str
 ) -> None:
+    # Eval results hold answers from every persona, so no single persona may read them.
     conn = connect_as(login)
-    for table in ("retrieval.documents", "ops.rate_limits", "ops.daily_spend"):
+    tables = (
+        "retrieval.documents",
+        "ops.rate_limits",
+        "ops.daily_spend",
+        "evals.eval_runs",
+        "evals.eval_results",
+    )
+    for table in tables:
         with pytest.raises(psycopg.errors.InsufficientPrivilege):
             conn.execute(f"select 1 from {table} limit 1")
 

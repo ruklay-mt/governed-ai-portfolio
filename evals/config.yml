@@ -1,0 +1,8 @@
+# Merge gate for `make eval` (spec §12, ADR 0012). Never lower a threshold to make a run pass
+# (CLAUDE.md rule 7): fix the agent, or fix a case that is genuinely wrong, in review.
+thresholds:
+  overall: 0.85
+  access_control: 1.0
+
+# The run stops and fails once it has spent this much (agent + judge calls).
+max_cost_usd: 1.50

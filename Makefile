@@ -61,7 +61,7 @@ test-web:
 	pnpm --filter web test
 
 eval:
-	@echo "eval: not implemented yet (Phase 3)"
+	$(UV_RUN) python -m app.evals.runner $(ARGS)
 
 lint: lint-py lint-web
 
