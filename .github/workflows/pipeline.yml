@@ -1,7 +1,9 @@
 name: pipeline
 
 # Daily data run (ADR 0003): append today's synthetic data, rebuild marts, re-apply the access
-# policy, embed new or changed documents, and record the run. Manual runs can pick the target.
+# policy, embed new or changed documents, and record the run. The schedule runs both Neon
+# branches, so "last quarter" on the live site moves with the calendar (ADR 0013); a manual run
+# picks one target.
 on:
   schedule:
     - cron: "30 14 * * *" # 03:30 NZDT
@@ -16,15 +18,18 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: pipeline-${{ inputs.target || 'dev' }}
-  cancel-in-progress: false
-
 jobs:
   run:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(inputs.target && format('["{0}"]', inputs.target) || '["dev", "prod"]') }}
+    concurrency:
+      group: pipeline-${{ matrix.target }}
+      cancel-in-progress: false
     env:
-      TARGET: ${{ inputs.target || 'dev' }}
+      TARGET: ${{ matrix.target }}
       DATABASE_URL: ${{ secrets.DATABASE_URL_DEV }}
       DATABASE_URL_PROD: ${{ secrets.DATABASE_URL_PROD }}
       VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
