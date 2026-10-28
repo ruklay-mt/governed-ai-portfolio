@@ -4,7 +4,7 @@ An AI agent over a fictional company's ERP, CRM, service-desk and policy data. A
 role, every answer shows its evidence (SQL, rows, cited policy passages), and access control is
 enforced by the database, not the prompt. All data is synthetic.
 
-**Live demo:** _link added at launch_ · takes about 3 minutes: pick a role, ask a sample
+**Live demo:** [governed-ai-portfolio.vercel.app](https://governed-ai-portfolio.vercel.app/assistant) · takes about 3 minutes: pick a role, ask a sample
 question, open "Show SQL", then try to break it.
 
 ## What it shows

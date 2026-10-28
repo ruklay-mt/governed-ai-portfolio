@@ -62,7 +62,7 @@ Before Phase 0, the author creates accounts and keys (Claude cannot enter creden
 - [x] `/assistant`: persona switcher, sample questions (precomputed answers), streamed answer, Show SQL, citations, cost/latency badge, "How this answer was built" steps, access-denied explanation, warming-up state
 - [x] "Try to break it" panel: preset attacks run live (precomputed in replay mode), each linked to its eval case (spec §10)
 - [x] Plain `/` landing page with links to CV, LinkedIn, GitHub
-- [ ] Prod data loaded on Neon `main`; API on Cloud Run with secrets from Secret Manager; web on Vercel; CORS locked to the site domain
+- [x] Prod data loaded on Neon `main`; API on Cloud Run with secrets from Secret Manager; web on Vercel; CORS locked to the site domain
 - [x] README: what it is, architecture diagram, how it was built with Claude Code, local run instructions
 
 **Done when:** on the live URL, each persona gets a correct answer to 5 sample questions, the margin refusal works, every "Try to break it" preset is refused, and the first sample answer shows instantly on a cold start. **MVP link goes on the CV.**
