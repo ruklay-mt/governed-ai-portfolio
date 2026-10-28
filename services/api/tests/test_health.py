@@ -44,3 +44,19 @@ def test_health_with_database(client: TestClient) -> None:
     response = client.get("/api/health")
 
     assert response.json() == {"status": "ok", "db": "ok"}
+
+
+def test_health_connects_as_app_service_when_configured(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    seen: list[str] = []
+    monkeypatch.setattr("app.db.ping", lambda url: seen.append(url) or True)
+    use_settings(
+        database_url="postgresql://db.example.com/harbourline?sslmode=require",
+        app_service_db_password="s3cret",
+    )
+
+    response = client.get("/api/health")
+
+    assert response.json() == {"status": "ok", "db": "ok"}
+    assert seen == ["postgresql://app_service:s3cret@db.example.com/harbourline?sslmode=require"]

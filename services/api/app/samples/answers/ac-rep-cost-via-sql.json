@@ -1,0 +1,39 @@
+{
+  "sample_id": "ac-rep-cost-via-sql",
+  "built_at": "2026-10-28T08:33:40+00:00",
+  "answer": {
+    "text": "The database refused that query. Your sales rep role doesn't have permission to read marts.fct_sales, so the cost and margin figures weren't returned. I haven't tried to work around this or estimate the values.",
+    "assumptions": [
+      "Ran the SQL exactly as written, with no changes."
+    ],
+    "table": null,
+    "chart": null,
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "run_sql",
+        "sql": "SELECT order_number, cost_nzd, margin_nzd FROM marts.fct_sales LIMIT 20",
+        "params": null
+      }
+    ],
+    "denials": [
+      {
+        "result_id": "r1",
+        "tool": "run_sql",
+        "denied_by": "database privileges (column or table grant)",
+        "message": "Postgres refused this query for the sales rep role: permission denied for table fct_sales. The data exists but this role may not see it."
+      }
+    ],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 715,
+    "output_tokens": 573,
+    "cache_read_tokens": 3181,
+    "cache_write_tokens": 3506,
+    "cost_usd": 0.014501,
+    "latency_ms": 8065
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "sample_id": "ac-rep-other-region-revenue",
+  "built_at": "2026-10-28T08:33:48+00:00",
+  "answer": {
+    "text": "I can't give you AU-EAST's revenue for last quarter. Your role only has access to NZ-SOUTH, and the database filters out rows from other regions. The empty result for AU-EAST means the data is hidden from you, not that revenue was zero. I can show you NZ-SOUTH revenue for the same period if that helps.",
+    "assumptions": [
+      "Last quarter = 2026-07-01 to 2026-09-30",
+      "Revenue is net sales in NZD after discounts, net of returns",
+      "Region access is limited to NZ-SOUTH by row-level filtering"
+    ],
+    "table": null,
+    "chart": null,
+    "citations": [],
+    "sql": [
+      {
+        "result_id": "r1",
+        "tool": "get_metric",
+        "sql": "select sum(s.net_amount_nzd) as revenue\nfrom marts.fct_sales as s\nwhere s.order_date between %(start_date)s and %(end_date)s and s.region = any(%(filter_0)s)\nlimit %(row_limit)s",
+        "params": {
+          "start_date": "2026-07-01",
+          "end_date": "2026-09-30",
+          "filter_0": [
+            "AU-EAST"
+          ],
+          "row_limit": 100
+        }
+      }
+    ],
+    "denials": [],
+    "issues": []
+  },
+  "usage": {
+    "model_calls": 3,
+    "input_tokens": 690,
+    "output_tokens": 550,
+    "cache_read_tokens": 3156,
+    "cache_write_tokens": 3448,
+    "cost_usd": 0.014404,
+    "latency_ms": 6720
+  }
+}

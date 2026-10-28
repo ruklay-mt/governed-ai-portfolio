@@ -7,7 +7,7 @@ TARGET ?= dev
 SCALE ?= full
 
 .PHONY: setup setup-py setup-web db-migrate db-migrate-prod data-generate data-append dbt-build docs-embed db-users \
-	api-dev web-dev agent-smoke samples-build test test-py test-web eval lint lint-py lint-web
+	api-dev web-dev agent-smoke samples-build samples-export test test-py test-web eval lint lint-py lint-web
 
 setup: setup-py setup-web
 
@@ -48,6 +48,9 @@ agent-smoke:
 
 samples-build:
 	$(UV_RUN) python -m app.samples.runner --write $(ARGS)
+
+samples-export:
+	$(UV_RUN) python -m app.samples.export
 
 web-dev:
 	pnpm --filter web dev

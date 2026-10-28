@@ -1,13 +1,12 @@
 {
   "sample_id": "rep-revenue-by-month",
-  "built_at": "2026-10-27T07:26:29+00:00",
+  "built_at": "2026-10-28T08:24:41+00:00",
   "answer": {
-    "text": "NZ-SOUTH revenue ran between about $1.76m and $2.21m a month this year. July was the highest at $2,213,947 and May the lowest at $1,763,210. October is only part-way through, at $1,813,272 so far.",
+    "text": "NZ-SOUTH revenue ranged from about $1.76m (May) to $2.21m (July) per month this year. January was $2.11m and September $1.99m. October is a partial month at $1.81m, up to 28 October.",
     "assumptions": [
-      "This year = year to date, 2026-01-01 to 2026-10-27.",
-      "Region is NZ-SOUTH, the only region your role can see.",
-      "Revenue is net of discounts and returns, in NZD.",
-      "October is a partial month."
+      "This year = 2026-01-01 to 2026-10-28 (year to date)",
+      "Region limited to NZ-SOUTH, the only region your role can see",
+      "Revenue is net of discounts and returns, in NZD"
     ],
     "table": {
       "result_id": "r1",
@@ -71,7 +70,7 @@
         "sql": "select date_trunc('month', s.order_date)::date as period, sum(s.net_amount_nzd) as revenue\nfrom marts.fct_sales as s\nwhere s.order_date between %(start_date)s and %(end_date)s\ngroup by 1\norder by 1\nlimit %(row_limit)s",
         "params": {
           "start_date": "2026-01-01",
-          "end_date": "2026-10-27",
+          "end_date": "2026-10-28",
           "row_limit": 100
         }
       }
@@ -81,11 +80,11 @@
   },
   "usage": {
     "model_calls": 3,
-    "input_tokens": 666,
-    "output_tokens": 488,
+    "input_tokens": 686,
+    "output_tokens": 486,
     "cache_read_tokens": 3152,
     "cache_write_tokens": 3550,
-    "cost_usd": 0.013969,
-    "latency_ms": 6758
+    "cost_usd": 0.013875,
+    "latency_ms": 13055
   }
 }

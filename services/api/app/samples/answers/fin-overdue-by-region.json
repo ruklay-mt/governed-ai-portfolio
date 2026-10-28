@@ -1,11 +1,12 @@
 {
   "sample_id": "fin-overdue-by-region",
-  "built_at": "2026-10-27T07:28:26+00:00",
+  "built_at": "2026-10-28T08:26:12+00:00",
   "answer": {
-    "text": "Total overdue AR is about NZD 10.17 million. AU-EAST is highest at NZD 3.58m, then NZ-NORTH at 3.08m, AU-WEST at 1.79m and NZ-SOUTH at 1.71m.",
+    "text": "Total overdue AR is about NZD 10.17 million. AU-EAST has the most at NZD 3.58m, then NZ-NORTH at 3.08m, AU-WEST at 1.79m and NZ-SOUTH at 1.71m.",
     "assumptions": [
-      "No time range applied: all outstanding invoices past their due date",
-      "Amounts in NZD (AUD converted at the monthly rate)"
+      "Outstanding NZD on invoices past their due date, as at today, with no time range applied.",
+      "AUD converted to NZD at the monthly rate.",
+      "The total is the sum of the four regions."
     ],
     "table": {
       "result_id": "r1",
@@ -53,11 +54,11 @@
   },
   "usage": {
     "model_calls": 3,
-    "input_tokens": 670,
-    "output_tokens": 457,
+    "input_tokens": 690,
+    "output_tokens": 474,
     "cache_read_tokens": 3279,
     "cache_write_tokens": 3571,
-    "cost_usd": 0.013718,
-    "latency_ms": 5676
+    "cost_usd": 0.0139,
+    "latency_ms": 7644
   }
 }

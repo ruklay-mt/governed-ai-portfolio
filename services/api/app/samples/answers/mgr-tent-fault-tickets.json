@@ -1,12 +1,12 @@
 {
   "sample_id": "mgr-tent-fault-tickets",
-  "built_at": "2026-10-27T07:27:59+00:00",
+  "built_at": "2026-10-28T08:25:43+00:00",
   "answer": {
-    "text": "The TrailPeak 2-Person Tent had by far the most product fault tickets in NZ-NORTH across March and April 2026, with 91 of the 159 total. Next were Southward Ear Muffs 50 (4), Bushcraft Cooler 62 (3), and Bushcraft Trekking Poles 35 and Kea Gas Heater 92 (2 each).",
+    "text": "The TrailPeak 2-Person Tent had by far the most product fault tickets in NZ-NORTH over March and April 2026, with 91 of the 159 in total. Next were Southward Ear Muffs 50 (4), Bushcraft Cooler 62 (3), then Bushcraft Trekking Poles 35 and Kea Gas Heater 92 (2 each).",
     "assumptions": [
       "March and April 2026 = 2026-03-01 to 2026-04-30",
       "Product fault = ticket_category 'Product fault'",
-      "Showing the top 10 products"
+      "Showing top 10 products by tickets opened"
     ],
     "table": {
       "result_id": "r3",
@@ -75,7 +75,7 @@
             "NZ-NORTH"
           ],
           "filter_1": [
-            "product_fault"
+            "product fault"
           ],
           "row_limit": 10
         }
@@ -115,11 +115,11 @@
   },
   "usage": {
     "model_calls": 5,
-    "input_tokens": 686,
-    "output_tokens": 973,
-    "cache_read_tokens": 13500,
-    "cache_write_tokens": 1164,
-    "cost_usd": 0.014848,
-    "latency_ms": 10674
+    "input_tokens": 706,
+    "output_tokens": 988,
+    "cache_read_tokens": 10376,
+    "cache_write_tokens": 4303,
+    "cost_usd": 0.022213,
+    "latency_ms": 11744
   }
 }
