@@ -61,8 +61,10 @@ make db-users       # set persona login passwords from .env (ADR 0008)
                     # data and dbt targets take TARGET=dev|prod (default dev)
 make api-dev        # run FastAPI locally
 make web-dev        # run Next.js locally
-make agent-smoke    # run sample questions live, check expectations (spends tokens; ARGS="--only id")
-make samples-build  # same, and write passing answers to services/api/app/samples/answers/
+make agent-smoke    # run sample questions and presets live, check expectations (spends tokens; ARGS="--only id")
+make samples-build  # same (+ "Try to break it" presets), write passing answers to
+                    # services/api/app/samples/answers/ and apps/web/data/demo.json
+make samples-export # rewrite apps/web/data/demo.json from cached answers (no tokens)
 make test           # unit tests (pytest + vitest)
 make eval           # run golden-set evals on dev, write report to evals/reports/, fail under
                     # the gate (spends tokens, ~US$0.45; ARGS="--only id" / "--repeat 3")
