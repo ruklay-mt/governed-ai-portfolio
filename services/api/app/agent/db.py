@@ -40,7 +40,7 @@ def pool_options() -> dict[str, Any]:
 
 
 def persona_url(database_url: str, login: str, password: str) -> str:
-    """The owner URL with the user and password swapped for a persona login's."""
+    """The database URL (with or without owner credentials) as a persona login."""
     url = urlparse(database_url.strip())
     host = url.hostname or "localhost"
     netloc = f"{login}:{quote(password.strip(), safe='')}@{host}" + (
