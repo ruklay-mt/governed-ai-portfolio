@@ -3,6 +3,7 @@
 !uv.lock
 !services/api/**
 !data/generator/pyproject.toml
+!evals/cases/**
 **/__pycache__
 **/.pytest_cache
 services/api/tests
